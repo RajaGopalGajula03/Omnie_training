@@ -1,13 +1,14 @@
-# Day 1 Task – HTML Portfolio
+# Day01-Task HTML Portfolio
 
-Created a basic portfolio webpage using HTML and CSS.
+Created a basic Portfolio webpage using HTML and CSS.
 
-Sections included:
-- Navigation bar
-- About
-- Skills
-- Contact
+Sections Included:
+1.Navigation bar
+2.About
+3.Skills
+4.Contact
 
-Technologies used:
-- HTML5
-- CSS3
+
+Technologies Used:
+1.HTML
+2.CSS
