@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Form & Table</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <h1>Student Registration Form</h1>
+    <form>
+        <label for="fname">Enter First Name : </label>
+        <input type="text" id="fname" name="fname"><br>
+        <label for="lname">Enter Last Name : </label>
+        <input type="text" id="lname" name="lname"><br>
+        <label for="email"> Enter Email : </label>
+        <input type="email" id="email" name="email"><br>
+        <label>Course : </label>
+        <select>
+            <option>Select</option>
+            <option>HTML</option>
+            <option>CSS</option>
+            <option>JavaScript</option>
+            <option>React</option>
+            <option>Node.js</option>
+            <option>Expres.js</option>
+            <option>MongoDB</option>
+            <option>Java</option>
+        </select><br>
+        <label for="txtarea">Enter Address</label><br>
+        <textarea id="txtarea" rows="4" cols="30" placeholder="Enter Address"></textarea><br>
+        <div class="btn-container">
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+    <hr>
+    <h2>Student Table</h2>
+    <table style="border: 1px solid black; padding: 10px">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Address</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Raja</td>
+                <td>Gajula</td>
+                <td>raja@gmail.com</td>
+                <td>React</td>
+                <td>Hyderabad</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Gopal</td>
+                <td>Gajula</td>
+                <td>gopal@gmail.com</td>
+                <td>JavaScript</td>
+                <td>Secundrabad</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>Abhi</td>
+                <td>Narne</td>
+                <td>abhi@gmail.com</td>
+                <td>Node.js</td>
+                <td>Hyderabad</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td>Anil</td>
+                <td>Narisetti</td>
+                <td>anil@gmail.com</td>
+                <td>Java</td>
+                <td>Hyderabad</td>
+            </tr>
+        </thead>
+    </table>
+</body>
+
+</html>
