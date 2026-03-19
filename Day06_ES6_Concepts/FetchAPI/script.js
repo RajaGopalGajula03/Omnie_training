@@ -1,9 +1,15 @@
 const tbody = document.getElementById("tbody");
+const searchInput = document.getElementById("search")
+
+let userData = []
 
 const fetchUsers = () =>{
     fetch("https://jsonplaceholder.typicode.com/users")
     .then(res => res.json())
-    .then(data => displayUser(data));
+    .then(data => {
+        userData = data;
+        displayUser(userData);
+    });
 }
 
 fetchUsers();
@@ -30,3 +36,10 @@ const displayUser = (data)=>{
         tbody.appendChild(tr);
     })
 }
+
+searchInput.addEventListener("input",()=>{
+    const value = searchInput.value.toLowerCase();
+
+    const filtered = userData.filter(user => user.name.toLowerCase().includes(value));
+    displayUser(filtered)
+})
