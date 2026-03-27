@@ -1,0 +1,29 @@
+.panel-dark {
+    background: #333;
+    color: white;
+    padding: 20px;
+}
+
+.button-dark {
+    background: black;
+    color: white;
+    padding: 8px 15px;
+    margin: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.panel-light {
+    background: #fff;
+    color: black;
+    padding: 20px;
+}
+
+.button-light {
+    background: burlywood;
+    color: black;
+    padding: 8px 15px;
+    margin: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
