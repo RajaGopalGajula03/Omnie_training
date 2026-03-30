@@ -9,7 +9,7 @@ export default function Counter(){
             setCount(prev => prev + 1);
         },1000)
         return ()=> clearInterval(intervalId);
-    },[]);
+    },[count]);
 
     return(
         <div>
@@ -17,3 +17,5 @@ export default function Counter(){
         </div>
     )
 }
+
+
