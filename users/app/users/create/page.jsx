@@ -9,8 +9,102 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
+const FormInput = ({ formik, name, label, options, ...props }) => {
+    if (options) {
+        return (
+            <TextField
+                select
+                fullWidth
+                label={label}
+                name={name}
+                value={formik.values[name]}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                error={formik.touched[name] && Boolean(formik.errors[name])}
+                helperText={formik.touched[name] && formik.errors[name]}
+            >
+                {options.map((opt) => {
+                    <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
+                })}
+            </TextField>
+        )
+    }
+    return (
+        <TextField
+            fullWidth
+            label={label}
+            name={name}
+            value={formik.values[name]}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            error={formik.touched[name] && Boolean(formik.errors[name])}
+            helperText={formik.touched[name] && formik.errors[name]}
+            {...props}
+        ></TextField>
+    )
+}
+
 export default function CreateUser() {
     const router = useRouter();
+
+    const personalFields = [
+        { name: 'firstName', label: "First Name" },
+        { name: "lastName", label: "Last Name" },
+        { name: "maidenName", label: "Middle Name" },
+        { name: "age", label: "Age" },
+        {
+            name: "gender",
+            label: "Gender",
+            options: [
+                { label: "Male", value: "male" },
+                { label: "Female", value: "female" },
+            ],
+        },
+        { name: "email", label: "Email" },
+        { name: "phone", label: "Phone" },
+        { name: "username", label: "Username" },
+        { name: "password", label: "Password", type: "password" },
+        {
+            name: "bloodGroup", label: "Blood Group",
+            options: [
+                { label: "O+", value: "O+" },
+                { label: "O-", value: "O-" },
+                { label: "A+", value: "A+" },
+                { label: "A-", value: "A-" },
+                { label: "B+", value: "B+" },
+                { label: "B-", value: "B-" },
+                { label: "AB+", value: "AB+" },
+                { label: "AB-", value: "AB-" },
+            ]
+        },
+        { name: 'height', label: "Height" },
+        { name: "weight", label: "Weight" },
+    ]
+
+    const addressFields = [
+        { name: "address", label: "Address" },
+        { name: "city", label: "City" },
+        { name: "state", label: "State" },
+        { name: "postalCode", label: "Postal Code" },
+        { name: "country", label: "Country" },
+    ];
+
+    const companyFields = [
+        { name: "department", label: "Department" },
+        { name: "name", label: "Company Name" },
+        { name: "title", label: "Title" },
+    ];
+
+    const bankFields = [
+        { name: "department", label: "Department" },
+        { name: "cardNumber", label: "Card Number" },
+        { name: "cardType", label: "Card Type" },
+    ];
+
+    const cryptoFields = [
+        { name: "coin", label: "Coin" },
+        { name: "wallet", label: "Wallet" },
+    ];
 
     const formik = useFormik({
         initialValues: {
@@ -125,120 +219,11 @@ export default function CreateUser() {
                         <Grid item xs={12}>
                             <Typography>Personal Information</Typography>
                         </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="First Name"
-                                name="firstName"
-                                value={formik.values.firstName}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.firstName && Boolean(formik.errors.firstName)}
-                                helperText={formik.touched.firstName && formik.errors.firstName}
-                            ></TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Last Name"
-                                name="lastName"
-                                value={formik.values.lastName}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.lastName && Boolean(formik.errors.lastName)}
-                                helperText={formik.touched.lastName && formik.errors.lastName}
-                            ></TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Middle Name"
-                                name="maidenName"
-                                value={formik.values.maidenName}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.maidenName && Boolean(formik.errors.maidenName)}
-                                helperText={formik.touched.maidenName && formik.errors.maidenName}
-                            ></TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Enter Age"
-                                name="age"
-                                value={formik.values.age}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.age && Boolean(formik.errors.age)}
-                                helperText={formik.touched.age && formik.errors.age}
-                            ></TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                select
-                                fullWidth
-                                label="Gender"
-                                name="gender"
-                                value={formik.values.gender}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.gender && Boolean(formik.errors.gender)}
-                                helperText={formik.touched.gender && formik.errors.gender}
-                            >
-                                <MenuItem value="male">Male</MenuItem>
-                                <MenuItem value="female">Female</MenuItem>
-                            </TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Email"
-                                name="email"
-                                value={formik.values.email}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.email && Boolean(formik.errors.email)}
-                                helperText={formik.touched.email && formik.errors.email}
-                            >
-                            </TextField>
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Phone"
-                                name="phone"
-                                value={formik.values.phone}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.phone && Boolean(formik.errors.phone)}
-                                helperText={formik.touched.phone && formik.errors.phone}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Username"
-                                name="username"
-                                value={formik.values.username}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.username && Boolean(formik.errors.username)}
-                                helperText={formik.touched.username && formik.errors.username}
-                            />
-                        </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                type="password"
-                                label="Password"
-                                name="password"
-                                value={formik.values.password}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.password && Boolean(formik.errors.password)}
-                                helperText={formik.touched.password && formik.errors.password}
-                            />
-                        </Grid>
+                        {personalFields.map((field) => (
+                            <Grid item xs={4} key={field.name}>
+                                <FormInput formik={formik} {...field}></FormInput>
+                            </Grid>
+                        ))}
                         <Grid item xs={4}>
                             <DatePicker
                                 label="Birth Date"
@@ -258,236 +243,46 @@ export default function CreateUser() {
                                 }}
                             />
                         </Grid>
-                        <Grid item xs={4}>
-                            <TextField
-                                select
-                                fullWidth
-                                label="Blood Group"
-                                name="bloodGroup"
-                                value={formik.values.bloodGroup}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.bloodGroup && Boolean(formik.errors.bloodGroup)}
-                                helperText={formik.touched.bloodGroup && formik.errors.bloodGroup}
-                            >
-                                <MenuItem value="O+">O+</MenuItem>
-                                <MenuItem value="O-">O-</MenuItem>
-                                <MenuItem value="A+">A+</MenuItem>
-                                <MenuItem value="A-">A-</MenuItem>
-                                <MenuItem value="B+">B+</MenuItem>
-                                <MenuItem value="B-">B-</MenuItem>
-                                <MenuItem value="AB+">AB+</MenuItem>
-                                <MenuItem value="AB-">AB-</MenuItem>
-                            </TextField>
-                        </Grid>
 
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Height"
-                                name="height"
-                                value={formik.values.height}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.height && Boolean(formik.errors.height)}
-                                helperText={formik.touched.height && formik.errors.height}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Weight"
-                                name="weight"
-                                value={formik.values.weight}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.weight && Boolean(formik.errors.weight)}
-                                helperText={formik.touched.weight && formik.errors.weight}
-                            />
-                        </Grid>
                         <Grid item xs={12}>
                             <Typography variant="h6">Address</Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
-                            <TextField
-                                fullWidth
-                                label="Address"
-                                name="address"
-                                alue={formik.values.address}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.address && Boolean(formik.errors.address)}
-                                helperText={formik.touched.address && formik.errors.address}
-                            />
-                        </Grid>
-
-                        <Grid item xs={6}>
-                            <TextField
-                                fullWidth
-                                label="City"
-                                name="city"
-                                value={formik.values.city}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.city && Boolean(formik.errors.city)}
-                                helperText={formik.touched.city && formik.errors.city}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="State"
-                                name="state"
-                                value={formik.values.state}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.state && Boolean(formik.errors.state)}
-                                helperText={formik.touched.state && formik.errors.state}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Postal Code"
-                                name="postalCode"
-                                value={formik.values.postalCode}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.postalCode && Boolean(formik.errors.postalCode)}
-                                helperText={formik.touched.postalCode && formik.errors.postalCode}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Country"
-                                name="country"
-                                value={formik.values.country}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.country && Boolean(formik.errors.country)}
-                                helperText={formik.touched.country && formik.errors.country}
-                            />
-                        </Grid>
+                        {addressFields.map((field) => (
+                            <Grid item xs={4} key={field.name}>
+                                <FormInput formik={formik} {...field}></FormInput>
+                            </Grid>
+                        ))}
                         <Grid item xs={12}>
                             <Typography variant="h6">Company</Typography>
                         </Grid>
 
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Department"
-                                name="department"
-                                value={formik.values.department}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.department && Boolean(formik.errors.department)}
-                                helperText={formik.touched.department && formik.errors.department}
-                            />
-                        </Grid>
+                        {companyFields.map((field) => (
+                            <Grid item xs={4} key={field.name}>
+                                <FormInput formik={formik} {...field}></FormInput>
+                            </Grid>
+                        ))}
 
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Company Name"
-                                name="name"
-                                value={formik.values.name}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.name && Boolean(formik.errors.name)}
-                                helperText={formik.touched.name && formik.errors.name}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Title"
-                                name="title"
-                                value={formik.values.title}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.title && Boolean(formik.errors.title)}
-                                helperText={formik.touched.title && formik.errors.title}
-                            />
-                        </Grid>
                         <Grid item xs={12}>
                             <Typography variant="h6">Bank</Typography>
                         </Grid>
 
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Card Expiry (MM/YY)"
-                                name="cardExpire"
-                                value={formik.values.cardExpire}
-                                inputProps={{ maxLength: 16 }}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.cardExpire && Boolean(formik.errors.cardExpire)}
-                                helperText={formik.touched.cardExpire && formik.errors.cardExpire}
-                            />
-                        </Grid>
+                        {bankFields.map((field)=>(
+                            <Grid item xs={4} key={field.name}>
+                                <FormInput formik={formik} {...field}></FormInput>
+                            </Grid>
+                        ))}
 
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Card Number"
-                                name="cardNumber"
-                                value={formik.values.cardNumber}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.cardNumber && Boolean(formik.errors.cardNumber)}
-                                helperText={formik.touched.cardNumber && formik.errors.cardNumber}
-                            />
-                        </Grid>
-
-                        <Grid item xs={4}>
-                            <TextField
-                                fullWidth
-                                label="Card Type"
-                                name="cardType"
-                                value={formik.values.cardType}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.cardType && Boolean(formik.errors.cardType)}
-                                helperText={formik.touched.cardType && formik.errors.cardType}
-                            />
-                        </Grid>
                         <Grid item xs={12}>
                             <Typography variant="h6">Crypto</Typography>
                         </Grid>
 
-                        <Grid item xs={6}>
-                            <TextField
-                                fullWidth
-                                label="Coin"
-                                name="coin"
-                                value={formik.values.coin}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.coin && Boolean(formik.errors.coin)}
-                                helperText={formik.touched.coin && formik.errors.coin}
-                            />
-                        </Grid>
+                        {cryptoFields.map((field)=>(
+                            <Grid item xs={6} key={field.name}>
+                                <FormInput formik={formik} {...field}></FormInput>
+                            </Grid>
+                        ))}
 
-                        <Grid item xs={6}>
-                            <TextField
-                                fullWidth
-                                label="Wallet"
-                                name="wallet"
-                                value={formik.values.wallet}
-                                onChange={formik.handleChange}
-                                onBlur={formik.handleBlur}
-                                error={formik.touched.wallet && Boolean(formik.errors.wallet)}
-                                helperText={formik.touched.wallet && formik.errors.wallet}
-                            />
-                        </Grid>
                         <Grid item xs={4}>
                             <Button type="submit" variant="contained" fullWidth>
                                 Create User

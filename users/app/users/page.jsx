@@ -1,5 +1,5 @@
 "use client";
-import { Box, Button, TextField, Typography, MenuItem, Grid } from "@mui/material";
+import { Box, Button, TextField, Typography, Grid } from "@mui/material";
 import { useEffect, useState } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { useRouter } from "next/navigation";
@@ -14,6 +14,8 @@ export default function UserTable() {
 
     const [filterKey, setFilterKey] = useState("");
     const [filterValue, setFilterValue] = useState("");
+
+    const [sortModel, setSortModel] = useState([]);
 
     const [rowCount, setRowCount] = useState(0);
 
@@ -38,7 +40,17 @@ export default function UserTable() {
 
                 const separator = baseUrl.includes("?") ? "&" : "?";
 
-                const url = `${baseUrl}${separator}limit=${pageSize}&skip=${skip}&select=id,firstName,lastName,email,username,phone`;
+                let sortQuery = "";
+                if(sortModel.length > 0)
+                {
+                    const {field,sort} = sortModel[0];
+                    if(sort)
+                    {
+                        sortQuery = `&sortBy=${field}&order=${sort}`;
+                    }
+                }
+
+                const url = `${baseUrl}${separator}limit=${pageSize}&skip=${skip}${sortQuery}&select=id,firstName,lastName,email,username,phone`;
 
                 const res = await fetch(url);
                 const data = await res.json();
@@ -51,7 +63,7 @@ export default function UserTable() {
             }
         };
         fetchUsers();
-    }, [search, filterKey, filterValue, paginationModel])
+    }, [search, filterKey, filterValue, paginationModel,sortModel])
 
     const handleDelete = async (id) => {
         try {
@@ -72,7 +84,7 @@ export default function UserTable() {
     const columns = [
         { field: "id", headerName: 'Id', width: 70 },
         {
-            field: "name",
+            field: "firstName",
             headerName: "Name",
             width: 200,
             valueGetter: (value, row) =>
@@ -157,6 +169,9 @@ export default function UserTable() {
                 columns={columns}
                 pagination
                 paginationMode="server"
+                sortingMode="server"
+                sortModel={sortModel}
+                onSortModelChange={setSortModel}
                 rowCount={rowCount}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}

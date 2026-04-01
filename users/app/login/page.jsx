@@ -38,8 +38,8 @@ export default function Login() {
                     return;
                 }
 
-                localStorage.setItem("accessToken", data.accessToken);
-                localStorage.setItem("refreshToken", data.refreshToken);
+                sessionStorage.setItem("accessToken", data.accessToken);
+                sessionStorage.setItem("refreshToken", data.refreshToken);
 
                 router.push("/dashboard");
             }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, Avatar } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -10,7 +10,7 @@ export default function Dashboard(){
     const[user,setUser] = useState(null);
     
     useEffect(()=>{
-        const token = localStorage.getItem("accessToken");
+        const token = sessionStorage.getItem("accessToken");
         if(!token){
             router.push("/login");
         }
@@ -50,9 +50,7 @@ export default function Dashboard(){
             ):(
                 <Box boxShadow={3} p={3} borderRadius={2}>
                     <Box textAlign="center" mb={3}>
-                        <img src={user.image}
-                        alt="profile"
-                        style={{borderRadius:"50%", width : 100}}></img>
+                        <Avatar src={user.image} sx={{ width: 80, height: 80 }}></Avatar>
                         <p>Name : {user.firstName} {user.lastName}</p>
                         <p>User Name : {user.username}</p>
                     </Box>
@@ -76,6 +74,7 @@ export default function Dashboard(){
                 </Box>
             )}
             <Button variant="contained" color="error" onClick={handleLogout} sx={{mt:3}}>Logout</Button>
+            <Button variant="contained"  onClick={()=>{router.push("/users")}} sx={{mt:3,ml:3}}>Users</Button>
         </Box>
     )
 }
