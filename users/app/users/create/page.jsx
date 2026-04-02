@@ -10,6 +10,19 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 
 const FormInput = ({ formik, name, label, options, ...props }) => {
+
+
+    const numberFields = ["age", "height", "weight", "postalCode", "cardNumber","phone"];
+
+    const formatExpiry = (value) => {
+        const cleaned = value.replace(/\D/g, "").slice(0, 4);
+        if (cleaned.length >= 3) {
+            return cleaned.slice(0, 2) + "/" + cleaned.slice(2);
+        }
+        return cleaned;
+    };
+
+
     if (options) {
         return (
             <TextField
@@ -23,9 +36,9 @@ const FormInput = ({ formik, name, label, options, ...props }) => {
                 error={formik.touched[name] && Boolean(formik.errors[name])}
                 helperText={formik.touched[name] && formik.errors[name]}
             >
-                {options.map((opt) => {
+                {options.map((opt) => (
                     <MenuItem key={opt.value} value={opt.value}>{opt.label}</MenuItem>
-                })}
+                ))}
             </TextField>
         )
     }
@@ -35,10 +48,28 @@ const FormInput = ({ formik, name, label, options, ...props }) => {
             label={label}
             name={name}
             value={formik.values[name]}
-            onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             error={formik.touched[name] && Boolean(formik.errors[name])}
             helperText={formik.touched[name] && formik.errors[name]}
+            onChange={(e) => {
+                let value = e.target.value;
+
+                if (name === "cardExpire") {
+                    value = formatExpiry(value);
+                    return formik.setFieldValue(name, value);
+                }
+
+                if (numberFields.includes(name)) {
+                    value = value.replace(/[^0-9]/g, "");
+                    if(name === "cardNumber"){
+                        value = value.slice(0,16);
+                    }
+                    return formik.setFieldValue(name, value);
+                }
+
+                formik.handleChange(e);
+
+            }}
             {...props}
         ></TextField>
     )
@@ -96,7 +127,7 @@ export default function CreateUser() {
     ];
 
     const bankFields = [
-        { name: "department", label: "Department" },
+        { name: "cardExpire", label: "Expiry Date MM/YY" },
         { name: "cardNumber", label: "Card Number" },
         { name: "cardType", label: "Card Type" },
     ];
@@ -158,7 +189,7 @@ export default function CreateUser() {
             address: Yup.string().required("Address required"),
             city: Yup.string(),
             state: Yup.string().required("State required"),
-            postalCode: Yup.string().matches(/^[0-9]{5,6}$/, "Invalid postal code").required("Postal code required"),
+            postalCode: Yup.string().matches(/^[0-9]{5,6}$/, "Postal code must be 5 or 6 digits").required("Postal code required"),
             country: Yup.string().required("Country required"),
 
             department: Yup.string(),
@@ -166,7 +197,7 @@ export default function CreateUser() {
             title: Yup.string(),
 
             cardExpire: Yup.string().matches(/^(0[1-9]|1[0-2])\/\d{2}$/, "Format MM/YY"),
-            cardNumber: Yup.string().length(16, "Card number must be 16 digits").matches(/^[0-9]+$/, "Only numbers allowed"),
+            cardNumber: Yup.string().matches(/^[0-9]{16}$/, "Card number must be 16 digits"),
             cardType: Yup.string(),
 
             coin: Yup.string(),
@@ -234,6 +265,7 @@ export default function CreateUser() {
                                         value ? value.format("YYYY-MM-DD") : ""
                                     )
                                 }
+                                maxDate={dayjs()}
                                 slotProps={{
                                     textField: {
                                         fullWidth: true,
@@ -267,7 +299,7 @@ export default function CreateUser() {
                             <Typography variant="h6">Bank</Typography>
                         </Grid>
 
-                        {bankFields.map((field)=>(
+                        {bankFields.map((field) => (
                             <Grid item xs={4} key={field.name}>
                                 <FormInput formik={formik} {...field}></FormInput>
                             </Grid>
@@ -277,7 +309,7 @@ export default function CreateUser() {
                             <Typography variant="h6">Crypto</Typography>
                         </Grid>
 
-                        {cryptoFields.map((field)=>(
+                        {cryptoFields.map((field) => (
                             <Grid item xs={6} key={field.name}>
                                 <FormInput formik={formik} {...field}></FormInput>
                             </Grid>
