@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import { Box, Button, Card, CardContent, CardMedia, Grid, TextField, Typography, MenuItem } from "@mui/material";
 import { useRouter } from "next/navigation";
-
+import { useDispatch,useSelector } from "react-redux";
+import { fetchProducts,deleteProduct } from "../../redux/features/productSlice";
 
 export default function Products() {
 
     const router = useRouter();
+    const dispatch = useDispatch();
+    const {items:products,total,loading} = useSelector((state)=>state.products)
 
-    const [products, setProducts] = useState([]);
+    // const [products, setProducts] = useState([]);
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(0);
-    const [total, setTotal] = useState(0);
+    // const [total, setTotal] = useState(0);
     const [limit, setLimit] = useState(8);
     const [sortBy, setSortBy] = useState("");
     const [order, setOrder] = useState("");
@@ -36,55 +39,63 @@ export default function Products() {
     }, [])
 
 
-    useEffect(() => {
-        const getProducts = async () => {
-            const skip = page * limit;
+    // useEffect(() => {
+    //     const getProducts = async () => {
+    //         const skip = page * limit;
 
-            let baseUrl = "https://dummyjson.com/products";
-
-
-            if (search) {
-                baseUrl = `https://dummyjson.com/products/search?q=${search}`
-            }
-            else if (category) {
-                baseUrl = `https://dummyjson.com/products/category/${category}`;
-            }
+    //         let baseUrl = "https://dummyjson.com/products";
 
 
+    //         if (search) {
+    //             baseUrl = `https://dummyjson.com/products/search?q=${search}`
+    //         }
+    //         else if (category) {
+    //             baseUrl = `https://dummyjson.com/products/category/${category}`;
+    //         }
 
-            const separator = baseUrl.includes("?") ? "&" : "?";
 
-            let url = `${baseUrl}${separator}limit=${limit}&skip=${skip}&select=title,price,description,images`
 
-            if (sortBy && order) {
-                url += `&sortBy=${sortBy}&order=${order}`;
-            }
+    //         const separator = baseUrl.includes("?") ? "&" : "?";
 
-            console.log("final URL", url);
+    //         let url = `${baseUrl}${separator}limit=${limit}&skip=${skip}&select=title,price,description,images`
 
-            const res = await fetch(url);
-            const data = await res.json();
+    //         if (sortBy && order) {
+    //             url += `&sortBy=${sortBy}&order=${order}`;
+    //         }
 
-            console.log(data.products);
-            setProducts(data.products);
-            setTotal(data.total);
-        }
-        getProducts();
-    }, [search, page, limit, sortBy, order, category])
+    //         console.log("final URL", url);
 
-    const handleDelete = async(id)=>{
-        try{
-            const res = await fetch(`https://dummyjson.com/products/${id}`,{
-                method:'DELETE',
-            });
-            const data = await res.json();
-            console.log("Deleted : ",data);
-            setProducts((prev)=> prev.filter((p)=>p.id !== id));
-        }
-        catch(err)
-        {
-            console.log(err);
-        }
+    //         const res = await fetch(url);
+    //         const data = await res.json();
+
+    //         console.log(data.products);
+    //         setProducts(data.products);
+    //         setTotal(data.total);
+    //     }
+    //     getProducts();
+    // }, [search, page, limit, sortBy, order, category])
+
+    useEffect(()=>{
+        dispatch(fetchProducts({search,page,limit,sortBy,order,category}));
+    },[dispatch,search,page,limit,sortBy,order,category])
+
+    // const handleDelete = async(id)=>{
+    //     try{
+    //         const res = await fetch(`https://dummyjson.com/products/${id}`,{
+    //             method:'DELETE',
+    //         });
+    //         const data = await res.json();
+    //         console.log("Deleted : ",data);
+    //         setProducts((prev)=> prev.filter((p)=>p.id !== id));
+    //     }
+    //     catch(err)
+    //     {
+    //         console.log(err);
+    //     }
+    // }
+
+    const handleDelete = (id) =>{
+        dispatch(deleteProduct(id))
     }
 
     return (
