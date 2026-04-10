@@ -1,4 +1,4 @@
-import { string } from "yup";
+
 
 export default function TsPractice() {
 
@@ -219,6 +219,57 @@ export default function TsPractice() {
     }
     multiplyValue({value:2},3)
     multiplyValue({value:undefined},3)
+    // literal types
+
+    let changingString = "Literal Example";
+    console.log(changingString);
+    changingString = "Can Modify";
+    console.log(changingString);
+
+    const constantString = "Can not change this string, this is literal type because of const ";
+    console.log(constantString);
+
+     function handleRequest(url:string,method: 'GET'|'POST'):void{
+        console.log("Url is : ", url);
+        console.log("Method is : ", method);
+     }
+
+    const req = {url:"https://example.com",method:"GET"} as const;
+    handleRequest(req.url,req.method);
+
+    // null and undefined
+    function doSomething(x:string | null)
+    {
+        if(x === null){
+            console.log("The value is null");
+        }
+        else{
+            console.log("Hello",x.toUpperCase());
+        }
+    }
+    doSomething(null);
+    doSomething("Samwell")
+
+    function nullAssertion(x?:number | null)
+    {
+        console.log(x!.toFixed());
+    }
+    nullAssertion(2000.00);
+    // nullAssertion(undefined)
+    // instanceof
+    function logvalue(x:Date|string){
+        if(x instanceof Date)
+        {
+            console.log(x.toUTCString());
+        }
+        else{
+            console.log(x.toUpperCase());
+        }
+    }
+    logvalue(new Date().toUTCString());
+
+    // 
+
 
     return (
         <div>Type Script Examples - Check in console</div>
