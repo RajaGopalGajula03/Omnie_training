@@ -57,7 +57,7 @@ export default function SwipableEdgeDrawer() {
                 open={open}
                 onClose={() => toggleDrawer(false)}
                 onOpen={() => toggleDrawer(true)}
-                swipeAreaWidth={50}
+                swipeAreaWidth={drawerBleeding}
                 disableSwipeToOpen={false}
             >
                 <StyledBox sx={{
