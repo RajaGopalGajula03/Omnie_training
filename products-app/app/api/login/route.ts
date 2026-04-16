@@ -9,7 +9,16 @@ export async function POST(req:NextRequest){
     if(username === "admin" && password === "1234"){
         const token = signToken({userId:1,name:"admin"});
 
-        return NextResponse.json({token});
+       const response = NextResponse.json({success:true});
+
+       response.cookies.set('token',token,{
+        httpOnly:true,
+        secure:true,
+        path:'/',
+        maxAge:60*60*24,
+       });
+
+       return response;
     }
     return NextResponse.json(
         {message:"Invalid credentials"},

@@ -3,14 +3,13 @@ import { verifyToken } from "@/lib/jwt";
 
 
 export async function GET(req:NextRequest){
-    const authHeader = req.headers.get("authorization");
+    const token = req.cookies.get("token")?.value;
 
-    if(!authHeader)
+    if(!token)
     {
         return NextResponse.json({message:"No token"},{status:401})
     }
-
-    const token = authHeader.split(" ")[1];
+    
     const user = verifyToken(token);
 
     if(!user)

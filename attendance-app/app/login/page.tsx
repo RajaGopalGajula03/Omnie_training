@@ -4,47 +4,52 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function Login() {
-    const [username, setUsername] = useState("");
+
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const router = useRouter();
 
     const handleLogin = async () => {
         const res = await fetch("/api/login", {
-            method: 'POST',
+            method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ email, password }),
         });
-        const data = await res.json();
-        console.log(data);
 
-        if(res.ok)
-        {
-            router.push("/dashboard")
+        const data = await res.json();
+
+        console.log(data);
+        console.log(res.status);
+
+        if (res.ok) {
+            window.location.href = "/employees";
         }
-        else
-        {
-            alert(data.message)
+        else {
+            alert(data.message);
         }
-        setUsername("");
+        setEmail("");
         setPassword("");
     }
-
     return (
         <div>
             <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter UserName">
-            </input><br></br>
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter Email"
+            ></input>
+            <br/>
+            <br/>
             <input
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter Your Password">
-            </input><br></br>
+                placeholder="Enter Password"
+                type="password"
+            ></input>
+            <br/>
+            <br/>
             <button onClick={handleLogin}>Login</button>
         </div>
     )
