@@ -1,5 +1,14 @@
 
-export const employees = [
+
+export type Employee = {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+};
+
+export let employees : Employee[]= [
     { id: 1, name: "John Doe", email: "john@mail.com", password: 'john123', role: "Traine" },
     { id: 2, name: "Jane Smith", email: "jane@mail.com", password: 'jane123', role: "Jr Developer" },
     { id: 3, name: "Ravi Kumar", email: "ravi@mail.com", password: 'ravi123', role: "Hr" },
@@ -7,6 +16,15 @@ export const employees = [
     { id: 5, name: "John Snow", email: "manager@mail.com", password: 'admin123', role: "manager" },
 ];
 
+export function addEmployee(emp: Omit<Employee, "id">) {
+  const newEmployee: Employee = {
+    id: employees.length + 1,
+    ...emp,
+  };
+
+  employees.push(newEmployee);
+  return newEmployee;
+}
 
 // export const attendance = [
 
@@ -119,9 +137,6 @@ export function generateAttendance(userId: number) {
 
         const dateStr = `${y}-${m}-${d}`;
 
-
-        // const dateStr = current.toISOString().split("T")[0];
-
         if (day === 0 || day === 6) {
             attendance.push({
                 userId,
@@ -130,15 +145,43 @@ export function generateAttendance(userId: number) {
             });
         }
         else {
+
+            const isToday =
+                current.getDate() === today.getDate() &&
+                current.getMonth() === today.getMonth() &&
+                current.getFullYear() === today.getFullYear();
+
+
             const isPresent = Math.random() > 0.2;
+
             if (isPresent) {
-                attendance.push({
-                    userId,
-                    date: dateStr,
-                    checkIn: randomTime("09:00", "09:30"),
-                    checkOut: randomTime("18:00", "18:30"),
-                    status: "present",
-                })
+                if (isToday) {
+                    const now = new Date();
+                    const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+                        now.getMinutes()
+                    ).padStart(2, "0")}`;
+
+                    const startCheckIn = now.getHours() < 9 ? "09:00" : currentTime;
+
+                    attendance.push({
+                        userId,
+                        date: dateStr,
+                        checkIn: randomTime("08:00", startCheckIn), // after 9 & before now
+                        checkOut: now.getHours() >= 18
+                            ? randomTime("18:00", currentTime)
+                            : null,
+                        status: "present",
+                    });
+                }
+                else {
+                    attendance.push({
+                        userId,
+                        date: dateStr,
+                        checkIn: randomTime("09:00", "09:30"),
+                        checkOut: randomTime("18:00", "18:30"),
+                        status: "present",
+                    })
+                }
             }
             else {
                 attendance.push({

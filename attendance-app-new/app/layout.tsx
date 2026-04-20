@@ -15,7 +15,7 @@ export default function RootLayout({
       lang="en"
     >
       <body className="min-h-full flex flex-col">
-        <Provider store = {store}>
+        <Provider store={store}>
           {children}
         </Provider>
       </body>

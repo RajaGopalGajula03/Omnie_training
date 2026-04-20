@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Box, Typography, Button } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { RootState } from "../../store/store";
+import { RootState } from "../../../store/store";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEmployees } from "../../store/employeeSlice";
+import { fetchEmployees } from "../../../store/employeeSlice";
 
 
 export default function Dashboard() {
@@ -14,9 +14,9 @@ export default function Dashboard() {
     const dispatch = useDispatch();
     const router = useRouter();
 
-    const{employees,loading,error} = useSelector((state:RootState)=>state.employee)
+    const { employees, loading, error } = useSelector((state: RootState) => state.employee)
 
-    console.log("loading in employees:",loading);
+    console.log("loading in employees:", loading);
     useEffect(() => {
         // async function fetchData() {
         //     const res = await fetch("/api/employees");
@@ -29,7 +29,7 @@ export default function Dashboard() {
         //         alert("Error fetching data");
         //         return;
         //     }
-            
+
         //     const data = await res.json();
         //     setData(data);
         //     console.log(data)
@@ -38,12 +38,11 @@ export default function Dashboard() {
         dispatch(fetchEmployees() as any);
     }, [dispatch])
 
-    useEffect(()=>{
-        if(error === "unauthorized")
-        {
+    useEffect(() => {
+        if (error === "unauthorized") {
             router.push("/login")
         }
-    },[error,router])
+    }, [error, router])
 
     const columns = [
         { field: "id", headerName: 'Id', width: 70 },
@@ -84,11 +83,9 @@ export default function Dashboard() {
                     rows={employees}
                     columns={columns}
                     loading={loading}
-                    pageSizeOptions={[5, 10]}
-                    initialState={{
-                        pagination: { paginationModel: { pageSize: 5 } },
-                    }}
-                ></DataGrid>
+                    pageSize={5}
+                    rowsPerPageOptions={[5, 10]}
+                />
             </Box>
         </Box>
     )
