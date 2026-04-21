@@ -11,9 +11,22 @@ export async function POST(req:Request){
 
     if(user)
     {
-        const token = signToken({id:user.id,role:user.role});
+        const token = signToken({
+            id: user.id,
+            role: user.role,
+            email: user.email,
+            name: user.name,
+        });
 
-        const res = NextResponse.json({success:true,role:user.role});
+        const res = NextResponse.json({
+            success:true,
+            user: {
+                id: user.id,
+                name: user.name,
+                email: user.email,
+                role:user.role,
+            },
+        });
         res.cookies.set("token",token,{
             httpOnly:true,
             path:'/',

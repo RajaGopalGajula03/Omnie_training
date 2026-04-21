@@ -8,12 +8,21 @@ export type Employee = {
   role: string;
 };
 
-export let employees : Employee[]= [
-    { id: 1, name: "John Doe", email: "john@mail.com", password: 'john123', role: "Traine" },
+export type AttendanceRecord = {
+  userId: number;
+  date: string;
+  checkIn?: string | null;
+  checkOut?: string | null;
+  status: "present" | "absent" | "holiday";
+};
+
+
+export const employees : Employee[]= [
+    { id: 1, name: "John Doe", email: "john@mail.com", password: 'john123', role: "Trainee" },
     { id: 2, name: "Jane Smith", email: "jane@mail.com", password: 'jane123', role: "Jr Developer" },
-    { id: 3, name: "Ravi Kumar", email: "ravi@mail.com", password: 'ravi123', role: "Hr" },
+    { id: 3, name: "Ravi Kumar", email: "ravi@mail.com", password: 'ravi123', role: "HR" },
     { id: 4, name: "Anita Sharma", email: "anita@mail.com", password: 'anita123', role: "Senior Developer" },
-    { id: 5, name: "John Snow", email: "manager@mail.com", password: 'admin123', role: "manager" },
+    { id: 5, name: "John Snow", email: "manager@mail.com", password: 'admin123', role: "Manager" },
 ];
 
 export function addEmployee(emp: Omit<Employee, "id">) {
@@ -120,7 +129,7 @@ export function generateAttendance(userId: number) {
     const year = today.getFullYear();
     const month = today.getMonth();
 
-    const attendance = [];
+    const attendance: AttendanceRecord[] = [];
 
     const current = new Date(year, month, 1);
 
@@ -152,7 +161,7 @@ export function generateAttendance(userId: number) {
                 current.getFullYear() === today.getFullYear();
 
 
-            const isPresent = Math.random() > 0.2;
+            const isPresent = getSeededRatio(userId, current) > 0.2;
 
             if (isPresent) {
                 if (isToday) {
@@ -166,9 +175,9 @@ export function generateAttendance(userId: number) {
                     attendance.push({
                         userId,
                         date: dateStr,
-                        checkIn: randomTime("08:00", startCheckIn), // after 9 & before now
+                        checkIn: randomTime("08:00", startCheckIn, userId, current.getDate()), // after 9 & before now
                         checkOut: now.getHours() >= 18
-                            ? randomTime("18:00", currentTime)
+                            ? randomTime("18:00", currentTime, userId + 10, current.getDate())
                             : null,
                         status: "present",
                     });
@@ -177,8 +186,8 @@ export function generateAttendance(userId: number) {
                     attendance.push({
                         userId,
                         date: dateStr,
-                        checkIn: randomTime("09:00", "09:30"),
-                        checkOut: randomTime("18:00", "18:30"),
+                        checkIn: randomTime("09:00", "09:30", userId, current.getDate()),
+                        checkOut: randomTime("18:00", "18:30", userId + 10, current.getDate()),
                         status: "present",
                     })
                 }
@@ -196,17 +205,26 @@ export function generateAttendance(userId: number) {
     return attendance;
 }
 
-function randomTime(start: string, end: string) {
+function randomTime(start: string, end: string, seedBase: number, daySeed: number) {
     const [sh, sm] = start.split(":").map(Number);
     const [eh, em] = end.split(":").map(Number);
 
     const startMinutes = sh * 60 + sm;
     const endMinutes = eh * 60 + em;
 
-    const randomMinutes = Math.floor(Math.random() * (endMinutes - startMinutes)) + startMinutes;
+    const range = Math.max(endMinutes - startMinutes, 1);
+    const offset = Math.floor(getSeededRatio(seedBase, new Date(2026, 0, daySeed)) * range);
+    const randomMinutes = offset + startMinutes;
 
     const h = Math.floor(randomMinutes / 60).toString().padStart(2, "0");
     const m = (randomMinutes % 60).toString().padStart(2, "0");
 
     return `${h}:${m}`;
+}
+
+function getSeededRatio(seed: number, date: Date) {
+    const value =
+        Math.sin(seed * 97 + date.getDate() * 13 + (date.getMonth() + 1) * 17 + date.getFullYear()) *
+        10000;
+    return value - Math.floor(value);
 }

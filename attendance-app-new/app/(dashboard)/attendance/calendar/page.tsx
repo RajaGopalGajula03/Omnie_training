@@ -1,194 +1,208 @@
 "use client";
 
-import { Box, Typography, TextField, MenuItem, CircularProgress, } from "@mui/material";
+import { Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ContentPanel, PageIntro } from "../../_components/dashboard-ui";
 
 type Employee = {
-    id: number;
-    name: string;
+  id: number;
+  name: string;
 };
 
 type Attendance = {
-    date: string;
-    checkIn?: string | null;
-    checkOut?: string | null;
-    status: string;
+  date: string;
+  checkIn?: string | null;
+  checkOut?: string | null;
+  status: string;
 };
 
-export default function AttendanceCalendar() {
-    const [employees, setEmployees] = useState<Employee[]>([]);
-    const [selectedId, setSelectedId] = useState<number | "">("");
-    const [attendance, setAttendance] = useState<Attendance[]>([]);
-    const [loading, setLoading] = useState(false);
+type SessionUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
 
+export default function AttendanceCalendarPage() {
+  const router = useRouter();
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedId, setSelectedId] = useState<number | "">("");
+  const [attendance, setAttendance] = useState<Attendance[]>([]);
+  const [user, setUser] = useState<SessionUser | null>(null);
 
-    useEffect(() => {
-        fetch("/api/employees", { credentials: "include" })
-            .then((res) => res.json())
-            .then((data) => {
-                setEmployees(data)
-                if (data.length > 0) {
-                    setSelectedId(data[0].id);
-                }
-            });
-    }, []);
+  const isAdmin = user?.role === "Manager" || user?.role === "HR";
 
-    useEffect(() => {
-        if (!selectedId) return;
+  useEffect(() => {
+    const loadSessionAndEmployees = async () => {
+      const authRes = await fetch("/api/auth/check", { credentials: "include" });
 
-        const fetchAttendance = async () => {
-            setLoading(true);
+      if (!authRes.ok) {
+        router.push("/login");
+        return;
+      }
 
-            const month = new Date().toISOString().slice(0, 7);
+      const authData = await authRes.json();
+      setUser(authData.user);
 
-            const res = await fetch(
-                `/api/attendance?userId=${selectedId}&month=${month}`,
-                { credentials: "include" }
-            );
+      const employeeRes = await fetch("/api/employees", { credentials: "include" });
+      const employeeData = await employeeRes.json();
 
-            const data = await res.json();
-            setAttendance(data);
-            setLoading(false);
-        };
+      if (Array.isArray(employeeData)) {
+        setEmployees(employeeData);
+        if (employeeData.length > 0) {
+          setSelectedId(employeeData[0].id);
+        }
+      }
+    };
 
-        fetchAttendance();
-    }, [selectedId]);
+    loadSessionAndEmployees();
+  }, [router]);
 
+  useEffect(() => {
+    if (!selectedId) return;
 
-    const attendanceMap: Record<string, Attendance> = {};
-    attendance.forEach((a) => {
-        attendanceMap[a.date] = a;
-    });
+    const fetchAttendance = async () => {
+      const month = new Date().toISOString().slice(0, 7);
+      const res = await fetch(`/api/attendance?userId=${selectedId}&month=${month}`, {
+        credentials: "include",
+      });
 
+      const data = await res.json();
+      setAttendance(data);
+    };
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const monthIndex = now.getMonth();
+    fetchAttendance();
+  }, [selectedId]);
 
-    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
-    const firstDay = new Date(year, monthIndex, 1).getDay();
+  const attendanceMap: Record<string, Attendance> = {};
+  attendance.forEach((item) => {
+    attendanceMap[item.date] = item;
+  });
 
-    const calendarDays: (string | null)[] = [];
+  const now = new Date();
+  const year = now.getFullYear();
+  const monthIndex = now.getMonth();
+  const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+  const firstDay = new Date(year, monthIndex, 1).getDay();
+  const calendarDays: (string | null)[] = [];
 
-    for (let i = 0; i < firstDay; i++) calendarDays.push(null);
-
-    for (let i = 1; i <= lastDay; i++) {
-        const y = year;
-        const m = String(monthIndex + 1).padStart(2, "0");
-        const d = String(i).padStart(2, "0");
-        calendarDays.push(`${y}-${m}-${d}`);
-    }
-
-    return (
-        <Box sx={{ p: 4 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-                Attendance Calendar
-            </Typography>
-
-
-            <TextField
-                select
-                label="Select Employee"
-                value={selectedId}
-                onChange={(e) => setSelectedId(Number(e.target.value))}
-                sx={{ mb: 3, width: 300 }}
-            >
-                {employees.map((emp) => (
-                    <MenuItem key={emp.id} value={emp.id}>
-                        {emp.name}
-                    </MenuItem>
-                ))}
-            </TextField>
-
-
-            {loading && <CircularProgress />}
-
-            {!loading && selectedId && (
-                <>
-
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(7,1fr)",
-                            mb: 1,
-                        }}
-                    >
-                        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                            <Typography key={d} align="center" fontWeight={600}>
-                                {d}
-                            </Typography>
-                        ))}
-                    </Box>
-
-
-                    <Box
-                        sx={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(7,1fr)",
-                            gap: 1,
-                        }}
-                    >
-                        {calendarDays.map((date, index) => {
-                            if (!date) return <Box key={index} />;
-
-                            const data = attendanceMap[date];
-                            const day = date.split("-")[2];
-
-                            return (
-                                <Box
-                                    key={date}
-                                    sx={{
-                                        p: 1,
-                                        border: "1px solid #ddd",
-                                        borderRadius: 2,
-                                        textAlign: "center",
-                                        minHeight: 70,
-                                        backgroundColor:
-                                            data?.status === "present"
-                                                ? "#dcfce7"
-                                                : data?.status === "absent"
-                                                    ? "#fee2e2"
-                                                    : "#f3f4f6",
-                                    }}
-                                >
-                                    <Typography variant="caption">{day}</Typography>
-
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            display: "block",
-                                            fontWeight: 600,
-                                            mt: 1,
-                                            color:
-                                                data?.status === "present"
-                                                    ? "green"
-                                                    : data?.status === "absent"
-                                                        ? "red"
-                                                        : "gray",
-                                        }}
-                                    >
-                                        {data?.status || "No Data"}
-                                    </Typography>
-
-                                    {data?.checkIn && (
-                                        <Typography variant="caption">
-                                            In: {data.checkIn}
-                                        </Typography>
-                                    )}
-
-                                    <br />
-
-                                    {data?.checkOut && (
-                                        <Typography variant="caption">
-                                            Out: {data.checkOut}
-                                        </Typography>
-                                    )}
-                                </Box>
-                            );
-                        })}
-                    </Box>
-                </>
-            )}
-        </Box>
+  for (let i = 0; i < firstDay; i++) calendarDays.push(null);
+  for (let i = 1; i <= lastDay; i++) {
+    calendarDays.push(
+      `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`
     );
+  }
+
+  return (
+    <Box>
+      <PageIntro
+        eyebrow="Attendance Calendar"
+        title="Monthly attendance calendar"
+        description="Review daily presence, absences, and working-hour snapshots in a clear month view."
+      />
+
+      <ContentPanel
+        title="Calendar"
+        subtitle="Choose an employee if you are an admin, or continue with your own attendance view."
+      >
+        {isAdmin ? (
+          <TextField
+            select
+            label="Select Employee"
+            value={selectedId}
+            onChange={(e) => setSelectedId(Number(e.target.value))}
+            sx={{ mb: 3, width: { xs: "100%", md: 320 } }}
+          >
+            {employees.map((employee) => (
+              <MenuItem key={employee.id} value={employee.id}>
+                {employee.name}
+              </MenuItem>
+            ))}
+          </TextField>
+        ) : (
+          <Typography sx={{ mb: 3, color: "#64748b" }}>
+            Viewing attendance for {user?.name || "your account"}
+          </Typography>
+        )}
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+            gap: 1,
+            mb: 1.2,
+          }}
+        >
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+            <Typography key={day} align="center" sx={{ color: "#475569", fontWeight: 700 }}>
+              {day}
+            </Typography>
+          ))}
+        </Box>
+
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
+            gap: 1,
+          }}
+        >
+          {calendarDays.map((date, index) => {
+            if (!date) return <Box key={`empty-${index}`} />;
+
+            const data = attendanceMap[date];
+            const day = date.split("-")[2];
+
+            return (
+              <Box
+                key={date}
+                sx={{
+                  p: 1.2,
+                  borderRadius: 2.5,
+                  minHeight: 92,
+                  backgroundColor:
+                    data?.status === "present"
+                      ? "#dcfce7"
+                      : data?.status === "absent"
+                      ? "#fee2e2"
+                      : "#f1f5f9",
+                }}
+              >
+                <Typography sx={{ color: "#334155", fontSize: 12, fontWeight: 700 }}>{day}</Typography>
+                <Typography
+                  sx={{
+                    mt: 1,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color:
+                      data?.status === "present"
+                        ? "#15803d"
+                        : data?.status === "absent"
+                        ? "#dc2626"
+                        : "#64748b",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  {data?.status || "No Data"}
+                </Typography>
+                <Stack spacing={0.2} sx={{ mt: 0.6 }}>
+                  {data?.checkIn ? (
+                    <Typography sx={{ color: "#475569", fontSize: 11 }}>
+                      In: {data.checkIn}
+                    </Typography>
+                  ) : null}
+                  {data?.checkOut ? (
+                    <Typography sx={{ color: "#475569", fontSize: 11 }}>
+                      Out: {data.checkOut}
+                    </Typography>
+                  ) : null}
+                </Stack>
+              </Box>
+            );
+          })}
+        </Box>
+      </ContentPanel>
+    </Box>
+  );
 }
