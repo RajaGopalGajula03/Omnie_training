@@ -6,9 +6,25 @@ import { ContentPanel, MetricCard, PageIntro } from "../_components/dashboard-ui
 import DomainOutlinedIcon from "@mui/icons-material/DomainOutlined";
 import SupervisorAccountOutlinedIcon from "@mui/icons-material/SupervisorAccountOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function DepartmentsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const view = searchParams.get("view") ?? "all";
   const totalMembers = departments.reduce((sum, item) => sum + item.members, 0);
+  const filteredDepartments = useMemo(() => {
+    if (view === "team-leads") {
+      return [...departments].sort((a, b) => a.lead.localeCompare(b.lead));
+    }
+
+    if (view === "members") {
+      return [...departments].sort((a, b) => b.members - a.members);
+    }
+
+    return departments;
+  }, [view]);
 
   return (
     <Box>
@@ -23,17 +39,44 @@ export default function DepartmentsPage() {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0, 1fr))" },
           gap: 2.2,
-          mb: 3,
+          mb: 6,
         }}
       >
-        <MetricCard label="Departments" value={departments.length} icon={<DomainOutlinedIcon />} hint="Active teams" color="#dbeafe" />
-        <MetricCard label="Team Leads" value={departments.length} icon={<SupervisorAccountOutlinedIcon />} hint="Department owners" color="#dcfce7" />
-        <MetricCard label="Total Members" value={totalMembers} icon={<GroupsOutlinedIcon />} hint="Headcount across teams" color="#ffedd5" />
+        <MetricCard
+          label="Departments"
+          value={departments.length}
+          icon={<DomainOutlinedIcon />}
+          hint="Active teams"
+          color="#dbeafe"
+          onClick={() => router.push("/departments?view=all")}
+        />
+        <MetricCard
+          label="Team Leads"
+          value={departments.length}
+          icon={<SupervisorAccountOutlinedIcon />}
+          hint="Department owners"
+          color="#dcfce7"
+          onClick={() => router.push("/departments?view=team-leads")}
+        />
+        <MetricCard
+          label="Total Members"
+          value={totalMembers}
+          icon={<GroupsOutlinedIcon />}
+          hint="Headcount across teams"
+          color="#ffedd5"
+          onClick={() => router.push("/departments?view=members")}
+        />
       </Box>
 
       <ContentPanel
         title="All departments"
-        subtitle="Use this view to understand headcount and ownership across business units."
+        subtitle={
+          view === "team-leads"
+            ? "Departments ordered by team lead."
+            : view === "members"
+            ? "Departments ordered by member count."
+            : "Use this view to understand headcount and ownership across business units."
+        }
       >
         <Box
           sx={{
@@ -42,7 +85,7 @@ export default function DepartmentsPage() {
             gap: 2,
           }}
         >
-          {departments.map((department) => (
+          {filteredDepartments.map((department) => (
             <Box
               key={department.id}
               sx={{

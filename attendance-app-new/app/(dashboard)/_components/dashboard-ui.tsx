@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Avatar,
-  Box,
-  ButtonBase,
-  Paper,
-  Stack,
-  Typography,
-  type SxProps,
-  type Theme,
-} from "@mui/material";
+import { Avatar, Box, ButtonBase, Paper, Stack, Typography, type SxProps, type Theme, } from "@mui/material";
 import ArrowOutwardIcon from "@mui/icons-material/ArrowOutward";
 import React from "react";
 
@@ -48,21 +39,15 @@ export function PageIntro({
   );
 }
 
-export function MetricCard({
-  label,
-  value,
-  icon,
-  hint,
-  color,
-  onClick,
-}: {
-  label: string;
-  value: string | number;
-  icon: React.ReactNode;
-  hint: string;
-  color: string;
-  onClick?: () => void;
-}) {
+export function MetricCard({ label, value, icon, hint, color, onClick, }:
+  {
+    label: string;
+    value: string | number;
+    icon: React.ReactNode;
+    hint: string;
+    color: string;
+    onClick?: () => void;
+  }) {
   const content = (
     <Paper
       elevation={0}
@@ -75,8 +60,8 @@ export function MetricCard({
         transition: "box-shadow 0.18s ease",
         "&:hover": onClick
           ? {
-              boxShadow: "0 8px 20px rgba(15, 23, 42, 0.08)",
-            }
+            boxShadow: "0 8px 20px rgba(0, 0, 0, 0.5)",
+          }
           : undefined,
       }}
     >

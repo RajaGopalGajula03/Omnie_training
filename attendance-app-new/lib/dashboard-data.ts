@@ -3,6 +3,7 @@ import { employees, generateAttendance, type AttendanceRecord } from "@/lib/data
 export type LeaveRequest = {
   id: number;
   employeeId: number;
+  leaveType: string;
   fromDate: string;
   toDate: string;
   days: number;
@@ -75,6 +76,7 @@ export const leaveRequests: LeaveRequest[] = [
   {
     id: 1,
     employeeId: 1,
+    leaveType: "Casual Leave",
     fromDate: "2026-04-24",
     toDate: "2026-04-25",
     days: 2,
@@ -84,6 +86,7 @@ export const leaveRequests: LeaveRequest[] = [
   {
     id: 2,
     employeeId: 2,
+    leaveType: "Sick Leave",
     fromDate: "2026-04-10",
     toDate: "2026-04-12",
     days: 3,
@@ -93,6 +96,7 @@ export const leaveRequests: LeaveRequest[] = [
   {
     id: 3,
     employeeId: 3,
+    leaveType: "Casual Leave",
     fromDate: "2026-04-21",
     toDate: "2026-04-21",
     days: 1,
@@ -102,6 +106,7 @@ export const leaveRequests: LeaveRequest[] = [
   {
     id: 4,
     employeeId: 4,
+    leaveType: "Work From Home",
     fromDate: "2026-04-08",
     toDate: "2026-04-09",
     days: 2,
@@ -111,6 +116,7 @@ export const leaveRequests: LeaveRequest[] = [
   {
     id: 5,
     employeeId: 5,
+    leaveType: "Comp Off",
     fromDate: "2026-04-22",
     toDate: "2026-04-23",
     days: 2,
@@ -139,6 +145,100 @@ export function getVisibleAnnouncements(isAdmin: boolean) {
 
 export function getEmployeeLeaves(employeeId: number) {
   return leaveRequests.filter((leave) => leave.employeeId === employeeId);
+}
+
+export function calculateLeaveDays(fromDate: string, toDate: string) {
+  const start = new Date(fromDate);
+  const end = new Date(toDate);
+  const diff = end.getTime() - start.getTime();
+
+  return Math.max(1, Math.floor(diff / (1000 * 60 * 60 * 24)) + 1);
+}
+
+export function createLeaveRequest(input: {
+  employeeId: number;
+  leaveType: string;
+  fromDate: string;
+  toDate: string;
+  reason: string;
+}) {
+  const leave: LeaveRequest = {
+    id: leaveRequests.length ? Math.max(...leaveRequests.map((item) => item.id)) + 1 : 1,
+    employeeId: input.employeeId,
+    leaveType: input.leaveType,
+    fromDate: input.fromDate,
+    toDate: input.toDate,
+    days: calculateLeaveDays(input.fromDate, input.toDate),
+    reason: input.reason,
+    status: "pending",
+  };
+
+  leaveRequests.unshift(leave);
+  return leave;
+}
+
+export function updateLeaveRequestStatus(id: number, status: LeaveRequest["status"]) {
+  const index = leaveRequests.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  leaveRequests[index] = {
+    ...leaveRequests[index],
+    status,
+  };
+
+  return leaveRequests[index];
+}
+
+export function getDepartmentNameForEmployee(employeeId: number) {
+  const employee = getEmployeeById(employeeId);
+
+  if (!employee) {
+    return "Unassigned";
+  }
+
+  if (employee.role === "HR") {
+    return "Human Resources";
+  }
+
+  if (employee.role === "Manager") {
+    return "Operations";
+  }
+
+  if (
+    employee.role === "Senior Developer" ||
+    employee.role === "Software Engineer" ||
+    employee.role === "Jr Developer" ||
+    employee.role === "Trainee"
+  ) {
+    return "Engineering";
+  }
+
+  return "Customer Success";
+}
+
+export function getDepartmentLeaveSummary() {
+  return departments.map((department) => {
+    const departmentEmployees = employees.filter(
+      (employee) => getDepartmentNameForEmployee(employee.id) === department.name
+    );
+
+    const activeMembers = departmentEmployees.filter(
+      (employee) => !getEmployeeLeaves(employee.id).some((leave) => leave.status === "approved")
+    ).length;
+
+    const pendingRequests = leaveRequests.filter((leave) =>
+      departmentEmployees.some((employee) => employee.id === leave.employeeId) && leave.status === "pending"
+    ).length;
+
+    return {
+      ...department,
+      activeMembers,
+      pendingRequests,
+    };
+  });
 }
 
 export function getEmployeeAttendanceSummary(employeeId: number) {

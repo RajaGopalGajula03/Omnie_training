@@ -135,7 +135,7 @@ export default function EmployeesPage() {
           display: "grid",
           gridTemplateColumns: { xs: "1fr", md: "repeat(3, minmax(0, 1fr))" },
           gap: 2.2,
-          mb: 3,
+          mb: 7,
         }}
       >
         <MetricCard label="Total Employees" value={employees.length} icon={<GroupsOutlinedIcon />} hint="Current workforce count" color="#dbeafe" />

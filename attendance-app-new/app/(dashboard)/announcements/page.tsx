@@ -6,8 +6,29 @@ import MarkEmailUnreadOutlinedIcon from "@mui/icons-material/MarkEmailUnreadOutl
 import Diversity3OutlinedIcon from "@mui/icons-material/Diversity3Outlined";
 import { announcements } from "@/lib/dashboard-data";
 import { ContentPanel, MetricCard, PageIntro } from "../_components/dashboard-ui";
+import { useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function AnnouncementsPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const audience = searchParams.get("audience") ?? "all";
+  const filteredAnnouncements = useMemo(() => {
+    if (audience === "all") {
+      return announcements;
+    }
+
+    if (audience === "company") {
+      return announcements.filter((item) => item.audience === "all");
+    }
+
+    if (audience === "targeted") {
+      return announcements.filter((item) => item.audience !== "all");
+    }
+
+    return announcements;
+  }, [audience]);
+
   return (
     <Box>
       <PageIntro
@@ -24,17 +45,23 @@ export default function AnnouncementsPage() {
           mb: 3,
         }}
       >
-        <MetricCard label="Total Posts" value={announcements.length} icon={<CampaignOutlinedIcon />} hint="Published updates" color="#ede9fe" />
-        <MetricCard label="All Hands Notes" value={announcements.filter((item) => item.audience === "all").length} icon={<Diversity3OutlinedIcon />} hint="Visible to everyone" color="#dbeafe" />
-        <MetricCard label="Targeted Updates" value={announcements.filter((item) => item.audience !== "all").length} icon={<MarkEmailUnreadOutlinedIcon />} hint="Role-specific updates" color="#ffedd5" />
+        <MetricCard label="Total Posts" value={announcements.length} icon={<CampaignOutlinedIcon />} hint="Published updates" color="#ede9fe" onClick={() => router.push("/announcements")} />
+        <MetricCard label="All Hands Notes" value={announcements.filter((item) => item.audience === "all").length} icon={<Diversity3OutlinedIcon />} hint="Visible to everyone" color="#dbeafe" onClick={() => router.push("/announcements?audience=company")} />
+        <MetricCard label="Targeted Updates" value={announcements.filter((item) => item.audience !== "all").length} icon={<MarkEmailUnreadOutlinedIcon />} hint="Role-specific updates" color="#ffedd5" onClick={() => router.push("/announcements?audience=targeted")} />
       </Box>
 
       <ContentPanel
         title="Announcement feed"
-        subtitle="Recent updates sorted for quick scanning and communication."
+        subtitle={
+          audience === "company"
+            ? "Showing company-wide updates."
+            : audience === "targeted"
+            ? "Showing targeted updates."
+            : "Recent updates sorted for quick scanning and communication."
+        }
       >
         <Stack spacing={1.4}>
-          {announcements.map((item) => (
+          {filteredAnnouncements.map((item) => (
             <Box
               key={item.id}
               sx={{

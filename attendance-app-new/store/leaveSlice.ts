@@ -2,7 +2,8 @@ import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
 
 export type Leave={
     id:number;
-    employeeIs:number;
+    employeeId:number;
+    leaveType:string;
     fromDate:string;
     toDate:string;
     days:number;
@@ -27,17 +28,18 @@ export const fetchLeaves = createAsyncThunk(
     async(employeeId?:number)=>{
         const url = employeeId ? `/api/leave?employeeId=${employeeId}`:`/api/leave`;
 
-        const res = await fetch(url);
+        const res = await fetch(url, { credentials: "include" });
         return res.json();
     }
 )
 
 export const createLeave = createAsyncThunk(
     "leave/create",
-    async(data:{employeeId: number; fromDate: string; toDate: string; reason: string})=>{
+    async(data:{employeeId?: number; leaveType: string; fromDate: string; toDate: string; reason: string})=>{
         const res = await fetch(`/api/leave`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
+            credentials:"include",
             body:JSON.stringify(data),
         })
 
@@ -51,6 +53,7 @@ export const updateLeaveStatus = createAsyncThunk(
         const res = await fetch(`/api/leave/${id}`,{
             method:"PUT",
             headers:{"Content-Type":"application/json"},
+            credentials:"include",
             body:JSON.stringify({status}),
         })
         return res.json();

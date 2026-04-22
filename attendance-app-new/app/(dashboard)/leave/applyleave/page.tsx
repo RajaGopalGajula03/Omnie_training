@@ -3,12 +3,15 @@
 import { Alert, Box, Button, MenuItem, Stack, TextField } from "@mui/material";
 import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import { useFormik } from "formik";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import * as Yup from "yup";
 import { ContentPanel, PageIntro } from "../../_components/dashboard-ui";
 
 export default function ApplyLeavePage() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const router = useRouter();
 
   const formik = useFormik({
     initialValues: {
@@ -23,8 +26,28 @@ export default function ApplyLeavePage() {
       toDate: Yup.string().required("End date is required"),
       reason: Yup.string().min(5, "Add a short reason").required("Reason is required"),
     }),
-    onSubmit: () => {
+    onSubmit: async (values, { resetForm }) => {
+      setSubmitError("");
+
+      const res = await fetch("/api/leave", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(values),
+      });
+
+      if (!res.ok) {
+        setSubmitError("Unable to submit leave request right now.");
+        return;
+      }
+
       setSubmitted(true);
+      resetForm();
+      setTimeout(() => {
+        router.push("/leave");
+      }, 900);
     },
   });
 
@@ -99,9 +122,11 @@ export default function ApplyLeavePage() {
               helperText={formik.touched.reason && formik.errors.reason}
             />
 
+            {submitError ? <Alert severity="error">{submitError}</Alert> : null}
+
             {submitted ? (
               <Alert severity="success">
-                Leave request UI is ready. The submission interaction can now be wired to your API flow.
+                Leave request submitted successfully.
               </Alert>
             ) : null}
 
