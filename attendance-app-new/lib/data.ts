@@ -13,7 +13,7 @@ export type AttendanceRecord = {
   date: string;
   checkIn?: string | null;
   checkOut?: string | null;
-  status: "present" | "absent" | "holiday";
+  status: "present" | "absent" | "holiday" | "leave";
 };
 
 
@@ -25,6 +25,8 @@ export const employees : Employee[]= [
     { id: 5, name: "John Snow", email: "manager@mail.com", password: 'admin123', role: "Manager" },
 ];
 
+export const attendanceOverrides: AttendanceRecord[] = [];
+
 export function addEmployee(emp: Omit<Employee, "id">) {
   const newEmployee: Employee = {
     id: employees.length + 1,
@@ -35,94 +37,6 @@ export function addEmployee(emp: Omit<Employee, "id">) {
   return newEmployee;
 }
 
-// export const attendance = [
-
-//     { userId: 1, date: "2026-04-01", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 1, date: "2026-04-02", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 1, date: "2026-04-03", status: "absent" },
-//     { userId: 1, date: "2026-04-04", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 1, date: "2026-04-05", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 1, date: "2026-04-06", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 1, date: "2026-04-07", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 1, date: "2026-04-08", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 1, date: "2026-04-09", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 1, date: "2026-04-10", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 1, date: "2026-04-11", status: "absent" },
-//     { userId: 1, date: "2026-04-12", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 1, date: "2026-04-13", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 1, date: "2026-04-14", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 1, date: "2026-04-15", status: "absent" },
-//     { userId: 1, date: "2026-04-16", checkIn: "09:20", checkOut: "17:50", status: "present" },
-
-//     { userId: 2, date: "2026-04-01", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 2, date: "2026-04-02", status: "absent" },
-//     { userId: 2, date: "2026-04-03", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-04", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 2, date: "2026-04-05", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 2, date: "2026-04-06", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-07", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-08", status: "absent" },
-//     { userId: 2, date: "2026-04-09", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 2, date: "2026-04-10", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-11", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-12", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 2, date: "2026-04-13", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 2, date: "2026-04-14", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 2, date: "2026-04-15", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 2, date: "2026-04-16", status: "absent" },
-
-
-//     { userId: 3, date: "2026-04-01", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 3, date: "2026-04-02", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 3, date: "2026-04-03", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-04", status: "absent" },
-//     { userId: 3, date: "2026-04-05", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 3, date: "2026-04-06", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-07", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-08", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-09", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 3, date: "2026-04-10", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-11", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-12", status: "absent" },
-//     { userId: 3, date: "2026-04-13", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 3, date: "2026-04-14", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 3, date: "2026-04-15", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 3, date: "2026-04-16", status: "absent" },
-
-//     { userId: 4, date: "2026-04-01", status: "absent" },
-//     { userId: 4, date: "2026-04-02", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-03", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-04", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 4, date: "2026-04-05", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 4, date: "2026-04-06", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-07", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-08", status: "absent" },
-//     { userId: 4, date: "2026-04-09", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 4, date: "2026-04-10", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-11", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-12", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 4, date: "2026-04-13", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 4, date: "2026-04-14", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 4, date: "2026-04-15", status: "absent" },
-//     { userId: 4, date: "2026-04-16", checkIn: "09:10", checkOut: "18:05", status: "present" },
-
-//     { userId: 5, date: "2026-04-01", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-02", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-03", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-04", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 5, date: "2026-04-05",  status: "absent" },
-//     { userId: 5, date: "2026-04-06", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-07", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-08", checkIn: "09:10", checkOut: "18:05", status: "present"},
-//     { userId: 5, date: "2026-04-09", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 5, date: "2026-04-10", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-11", status: "absent"  },
-//     { userId: 5, date: "2026-04-12", checkIn: "09:20", checkOut: "17:50", status: "present" },
-//     { userId: 5, date: "2026-04-13", checkIn: "09:00", checkOut: "18:00", status: "present" },
-//     { userId: 5, date: "2026-04-14", checkIn: "09:10", checkOut: "18:05", status: "present" },
-//     { userId: 5, date: "2026-04-15", status: "absent" },
-//     { userId: 5, date: "2026-04-16", checkIn: "09:10", checkOut: "18:05", status: "present" },
-// ];
 
 export function generateAttendance(userId: number) {
     const today = new Date();
@@ -134,10 +48,6 @@ export function generateAttendance(userId: number) {
     const current = new Date(year, month, 1);
 
     while (current <= today) {
-
-        // const day = new Date(
-        //     current.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
-        // ).getDay();
 
         const day = current.getDay();
         const y = current.getFullYear();
@@ -203,6 +113,79 @@ export function generateAttendance(userId: number) {
         current.setDate(current.getDate() + 1);
     }
     return attendance;
+}
+
+export function getAttendanceRecords(userId: number) {
+    const baseRecords = generateAttendance(userId);
+
+    return baseRecords.map((record) => {
+        const override = attendanceOverrides.find(
+            (item) => item.userId === userId && item.date === record.date
+        );
+
+        return override
+            ? {
+                ...record,
+                ...override,
+            }
+            : record;
+    });
+}
+
+export function upsertAttendanceRecord(record: AttendanceRecord) {
+    const index = attendanceOverrides.findIndex(
+        (item) => item.userId === record.userId && item.date === record.date
+    );
+
+    if (index === -1) {
+        attendanceOverrides.push(record);
+        return record;
+    }
+
+    attendanceOverrides[index] = {
+        ...attendanceOverrides[index],
+        ...record,
+    };
+
+    return attendanceOverrides[index];
+}
+
+export function getCurrentDateKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(
+        now.getDate()
+    ).padStart(2, "0")}`;
+}
+
+export function getCurrentTimeKey() {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+}
+
+export function checkInEmployee(userId: number) {
+    const date = getCurrentDateKey();
+    const existing = getAttendanceRecords(userId).find((item) => item.date === date);
+
+    return upsertAttendanceRecord({
+        userId,
+        date,
+        checkIn: existing?.checkIn || getCurrentTimeKey(),
+        checkOut: existing?.checkOut || null,
+        status: "present",
+    });
+}
+
+export function checkOutEmployee(userId: number) {
+    const date = getCurrentDateKey();
+    const existing = getAttendanceRecords(userId).find((item) => item.date === date);
+
+    return upsertAttendanceRecord({
+        userId,
+        date,
+        checkIn: existing?.checkIn || getCurrentTimeKey(),
+        checkOut: getCurrentTimeKey(),
+        status: "present",
+    });
 }
 
 function randomTime(start: string, end: string, seedBase: number, daySeed: number) {

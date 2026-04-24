@@ -1,4 +1,4 @@
-import { employees, generateAttendance, type AttendanceRecord } from "@/lib/data";
+import { employees, getAttendanceRecords, type AttendanceRecord } from "@/lib/data";
 
 export type LeaveRequest = {
   id: number;
@@ -133,6 +133,56 @@ export const payrollItems: PayrollItem[] = employees.map((employee, index) => ({
   amount: 28000 + employee.id * 6500,
 }));
 
+export function createAnnouncement(input: Omit<Announcement, "id">) {
+  const announcement: Announcement = {
+    id: announcements.length ? Math.max(...announcements.map((item) => item.id)) + 1 : 1,
+    ...input,
+  };
+
+  announcements.unshift(announcement);
+  return announcement;
+}
+
+export function updateAnnouncement(id: number, patch: Partial<Omit<Announcement, "id">>) {
+  const index = announcements.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  announcements[index] = {
+    ...announcements[index],
+    ...patch,
+  };
+
+  return announcements[index];
+}
+
+export function createPayrollItem(input: Omit<PayrollItem, "id">) {
+  const payrollItem: PayrollItem = {
+    id: payrollItems.length ? Math.max(...payrollItems.map((item) => item.id)) + 1 : 1,
+    ...input,
+  };
+
+  payrollItems.unshift(payrollItem);
+  return payrollItem;
+}
+
+export function updatePayrollItem(id: number, patch: Partial<Omit<PayrollItem, "id">>) {
+  const index = payrollItems.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return null;
+  }
+
+  payrollItems[index] = {
+    ...payrollItems[index],
+    ...patch,
+  };
+
+  return payrollItems[index];
+}
+
 export function getEmployeeById(id: number) {
   return employees.find((employee) => employee.id === id) ?? null;
 }
@@ -178,6 +228,13 @@ export function createLeaveRequest(input: {
 }
 
 export function updateLeaveRequestStatus(id: number, status: LeaveRequest["status"]) {
+  return updateLeaveRequest(id, { status });
+}
+
+export function updateLeaveRequest(
+  id: number,
+  patch: Partial<Pick<LeaveRequest, "leaveType" | "fromDate" | "toDate" | "reason" | "status">>
+) {
   const index = leaveRequests.findIndex((item) => item.id === id);
 
   if (index === -1) {
@@ -186,8 +243,15 @@ export function updateLeaveRequestStatus(id: number, status: LeaveRequest["statu
 
   leaveRequests[index] = {
     ...leaveRequests[index],
-    status,
+    ...patch,
   };
+
+  if (patch.fromDate || patch.toDate) {
+    leaveRequests[index].days = calculateLeaveDays(
+      leaveRequests[index].fromDate,
+      leaveRequests[index].toDate
+    );
+  }
 
   return leaveRequests[index];
 }
@@ -242,7 +306,7 @@ export function getDepartmentLeaveSummary() {
 }
 
 export function getEmployeeAttendanceSummary(employeeId: number) {
-  const records = generateAttendance(employeeId);
+  const records = getEmployeeAttendanceRecords(employeeId);
 
   return {
     records,
@@ -252,8 +316,33 @@ export function getEmployeeAttendanceSummary(employeeId: number) {
   };
 }
 
+export function getEmployeeAttendanceRecords(employeeId: number) {
+  const records = getAttendanceRecords(employeeId);
+
+  return records.map((record) => {
+    const approvedLeave = leaveRequests.find(
+      (leave) =>
+        leave.employeeId === employeeId &&
+        leave.status === "approved" &&
+        record.date >= leave.fromDate &&
+        record.date <= leave.toDate
+    );
+
+    if (!approvedLeave) {
+      return record;
+    }
+
+    return {
+      ...record,
+      checkIn: null,
+      checkOut: null,
+      status: "leave" as const,
+    };
+  });
+}
+
 export function getAdminStats() {
-  const allAttendance = employees.flatMap((employee) => generateAttendance(employee.id));
+  const allAttendance = employees.flatMap((employee) => getEmployeeAttendanceRecords(employee.id));
   const todayKey = new Date().toISOString().slice(0, 10);
   const todayAttendance = allAttendance.filter((item) => item.date === todayKey);
 

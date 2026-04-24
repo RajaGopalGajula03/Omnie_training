@@ -15,9 +15,9 @@ export function middleware(req: NextRequest) {
         "/employees/add",
         "/employees/edit",
         "/departments",
-        "/payroll",
+        // "/payroll",
         "/leave/approvals",
-        "/announcements",
+        // "/announcements",
     ];
 
     const requiresAdmin = adminOnlyPaths.some((path) =>

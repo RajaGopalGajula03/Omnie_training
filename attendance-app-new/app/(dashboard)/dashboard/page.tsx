@@ -13,7 +13,13 @@ import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurned
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {announcements,departments,getEmployeeAttendanceSummary,getEmployeeById,getRoleLabelFromRoute,payrollItems,type LeaveRequest,} from "@/lib/dashboard-data";
+import {
+  departments,
+  getEmployeeAttendanceSummary,
+  getEmployeeById,
+  getRoleLabelFromRoute,
+  type LeaveRequest,
+} from "@/lib/dashboard-data";
 import { generateAttendance } from "@/lib/data";
 import { ContentPanel, MetricCard, PageIntro } from "../_components/dashboard-ui";
 
@@ -29,6 +35,22 @@ type EmployeeLite = {
   name: string;
   email: string;
   role: string;
+};
+
+type AnnouncementLite = {
+  id: number;
+  title: string;
+  description: string;
+  audience: string;
+  date: string;
+};
+
+type PayrollLite = {
+  id: number;
+  employeeId: number;
+  month: string;
+  status: "pending" | "processed";
+  amount: number;
 };
 
 type AdminDetailKey =
@@ -48,6 +70,8 @@ export default function DashboardPage() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [employees, setEmployees] = useState<EmployeeLite[]>([]);
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementLite[]>([]);
+  const [payrollItems, setPayrollItems] = useState<PayrollLite[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminDetail, setAdminDetail] = useState<AdminDetailKey>("employees");
   const [employeeDetail, setEmployeeDetail] = useState<EmployeeDetailKey>("pending");
@@ -64,27 +88,39 @@ export default function DashboardPage() {
       }
 
       const authData = await authRes.json();
-      if (!active) return;
+      if (!active) {
+        return;
+      }
+
       setUser(authData.user);
 
-      const [employeeRes, leaveRes] = await Promise.all([
+      const [employeeRes, leaveRes, announcementRes, payrollRes] = await Promise.all([
         fetch("/api/employees", { credentials: "include" }),
         fetch("/api/leave", { credentials: "include" }),
+        fetch("/api/announcements", { credentials: "include" }),
+        fetch("/api/payroll", { credentials: "include" }),
       ]);
 
       const employeeData = await employeeRes.json();
       const leaveData = await leaveRes.json();
+      const announcementData = await announcementRes.json();
+      const payrollData = await payrollRes.json();
 
-      if (!active) return;
+      if (!active) {
+        return;
+      }
+
       setEmployees(Array.isArray(employeeData) ? employeeData : []);
       setLeaves(Array.isArray(leaveData) ? leaveData : []);
+      setAnnouncements(Array.isArray(announcementData) ? announcementData : []);
+      setPayrollItems(Array.isArray(payrollData) ? payrollData : []);
       setLoading(false);
     };
 
-    loadDashboard();
+    void loadDashboard();
 
     const handleFocus = () => {
-      loadDashboard();
+      void loadDashboard();
     };
 
     window.addEventListener("focus", handleFocus);
@@ -96,7 +132,6 @@ export default function DashboardPage() {
   }, [router]);
 
   const isAdmin = user?.role === "Manager" || user?.role === "HR";
-
   const todayKey = new Date().toISOString().slice(0, 10);
 
   const adminStats = useMemo(() => {
@@ -114,12 +149,13 @@ export default function DashboardPage() {
       presentToday: todayPresent,
       pendingPayrolls: payrollItems.filter((item) => item.status === "pending"),
     };
-  }, [employees, leaves, todayKey]);
+  }, [employees, leaves, payrollItems, todayKey]);
 
   const employeeAttendance = useMemo(
     () => (user ? getEmployeeAttendanceSummary(user.id) : null),
     [user]
   );
+
   const employeeLeaves = useMemo(
     () => (user ? leaves.filter((item) => item.employeeId === user.id) : []),
     [leaves, user]
@@ -185,7 +221,7 @@ export default function DashboardPage() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mt:2,mb:5 }}>
+        <Grid container spacing={2} sx={{ mt: 2, mb: 5 }}>
           <Grid item xs={12} sm={6} xl={3} sx={{ height: 180 }}>
             <MetricCard
               label="Present Today"
@@ -235,6 +271,8 @@ export default function DashboardPage() {
           pendingApprovals={adminStats.pendingApprovals}
           approvedLeaves={adminStats.approvedLeaves}
           presentToday={adminStats.presentToday}
+          announcements={announcements}
+          pendingPayrolls={adminStats.pendingPayrolls}
         />
       </Box>
     );
@@ -264,7 +302,7 @@ export default function DashboardPage() {
         }
       />
 
-      <Grid container spacing={2}>
+      <Grid container spacing={2} sx={{ mb: 6 }}>
         <Grid item xs={12} sm={6} xl={3} sx={{ display: "flex" }}>
           <MetricCard
             label="Pending Leave Requests"
@@ -312,6 +350,7 @@ export default function DashboardPage() {
         pendingLeaves={employeePending}
         approvedLeaves={employeeApproved}
         attendance={employeeAttendance?.records ?? []}
+        announcements={announcements}
       />
     </Box>
   );
@@ -324,6 +363,8 @@ function DashboardAdminDetails({
   pendingApprovals,
   approvedLeaves,
   presentToday,
+  announcements,
+  pendingPayrolls,
 }: {
   selected: AdminDetailKey;
   employees: EmployeeLite[];
@@ -331,6 +372,8 @@ function DashboardAdminDetails({
   pendingApprovals: LeaveRequest[];
   approvedLeaves: LeaveRequest[];
   presentToday: EmployeeLite[];
+  announcements: AnnouncementLite[];
+  pendingPayrolls: PayrollLite[];
 }) {
   const titles: Record<AdminDetailKey, { title: string; subtitle: string }> = {
     employees: {
@@ -373,7 +416,7 @@ function DashboardAdminDetails({
         <SimpleList
           items={employees.map((employee) => ({
             title: employee.name,
-            subtitle: `${employee.email} · ${employee.role}`,
+            subtitle: `${employee.email} - ${employee.role}`,
             tag: `ID ${employee.id}`,
           }))}
         />
@@ -383,7 +426,7 @@ function DashboardAdminDetails({
         <SimpleList
           items={onLeaveToday.map((leave) => ({
             title: getEmployeeById(leave.employeeId)?.name || `Employee #${leave.employeeId}`,
-            subtitle: `${leave.leaveType} · ${leave.fromDate} to ${leave.toDate}`,
+            subtitle: `${leave.leaveType} - ${leave.fromDate} to ${leave.toDate}`,
             tag: leave.status,
           }))}
           emptyLabel="No active leave records for today."
@@ -404,7 +447,7 @@ function DashboardAdminDetails({
         <SimpleList
           items={pendingApprovals.map((leave) => ({
             title: leave.reason,
-            subtitle: `${getEmployeeById(leave.employeeId)?.name || `Employee #${leave.employeeId}`} · ${leave.fromDate} to ${leave.toDate}`,
+            subtitle: `${getEmployeeById(leave.employeeId)?.name || `Employee #${leave.employeeId}`} - ${leave.fromDate} to ${leave.toDate}`,
             tag: "pending",
           }))}
           emptyLabel="No pending approvals."
@@ -415,7 +458,7 @@ function DashboardAdminDetails({
         <SimpleList
           items={presentToday.map((employee) => ({
             title: employee.name,
-            subtitle: `${employee.email} · ${employee.role}`,
+            subtitle: `${employee.email} - ${employee.role}`,
             tag: "present",
           }))}
           emptyLabel="No present members found for today."
@@ -426,9 +469,10 @@ function DashboardAdminDetails({
         <SimpleList
           items={announcements.map((item) => ({
             title: item.title,
-            subtitle: `${item.description} · ${item.date}`,
+            subtitle: `${item.description} - ${item.date}`,
             tag: item.audience,
           }))}
+          emptyLabel="No announcements found."
         />
       ) : null}
 
@@ -436,7 +480,7 @@ function DashboardAdminDetails({
         <SimpleList
           items={approvedLeaves.map((leave) => ({
             title: leave.reason,
-            subtitle: `${getEmployeeById(leave.employeeId)?.name || `Employee #${leave.employeeId}`} · ${leave.fromDate} to ${leave.toDate}`,
+            subtitle: `${getEmployeeById(leave.employeeId)?.name || `Employee #${leave.employeeId}`} - ${leave.fromDate} to ${leave.toDate}`,
             tag: "approved",
           }))}
           emptyLabel="No approved leaves yet."
@@ -445,13 +489,11 @@ function DashboardAdminDetails({
 
       {selected === "pendingPayrolls" ? (
         <SimpleList
-          items={payrollItems
-            .filter((item) => item.status === "pending")
-            .map((item) => ({
-              title: getEmployeeById(item.employeeId)?.name || `Employee #${item.employeeId}`,
-              subtitle: `${item.month} · ₹${item.amount.toLocaleString()}`,
-              tag: item.status,
-            }))}
+          items={pendingPayrolls.map((item) => ({
+            title: getEmployeeById(item.employeeId)?.name || `Employee #${item.employeeId}`,
+            subtitle: `${item.month} - Rs ${item.amount.toLocaleString()}`,
+            tag: item.status,
+          }))}
           emptyLabel="No pending payrolls."
         />
       ) : null}
@@ -464,6 +506,7 @@ function DashboardEmployeeDetails({
   pendingLeaves,
   approvedLeaves,
   attendance,
+  announcements,
 }: {
   selected: EmployeeDetailKey;
   pendingLeaves: LeaveRequest[];
@@ -474,6 +517,7 @@ function DashboardEmployeeDetails({
     checkOut?: string | null;
     status: string;
   }>;
+  announcements: AnnouncementLite[];
 }) {
   const details = {
     pending: {
@@ -500,7 +544,7 @@ function DashboardEmployeeDetails({
         <SimpleList
           items={pendingLeaves.map((leave) => ({
             title: leave.reason,
-            subtitle: `${leave.leaveType} · ${leave.fromDate} to ${leave.toDate}`,
+            subtitle: `${leave.leaveType} - ${leave.fromDate} to ${leave.toDate}`,
             tag: leave.status,
           }))}
           emptyLabel="No pending leave requests."
@@ -511,7 +555,7 @@ function DashboardEmployeeDetails({
         <SimpleList
           items={approvedLeaves.map((leave) => ({
             title: leave.reason,
-            subtitle: `${leave.leaveType} · ${leave.fromDate} to ${leave.toDate}`,
+            subtitle: `${leave.leaveType} - ${leave.fromDate} to ${leave.toDate}`,
             tag: leave.status,
           }))}
           emptyLabel="No approved leaves yet."
@@ -522,7 +566,7 @@ function DashboardEmployeeDetails({
         <SimpleList
           items={[...attendance].slice(-7).reverse().map((item) => ({
             title: item.date,
-            subtitle: `Check-in: ${item.checkIn || "-"} · Check-out: ${item.checkOut || "-"}`,
+            subtitle: `Check-in: ${item.checkIn || "-"} - Check-out: ${item.checkOut || "-"}`,
             tag: item.status,
           }))}
           emptyLabel="No attendance records."
@@ -533,9 +577,10 @@ function DashboardEmployeeDetails({
         <SimpleList
           items={announcements.map((item) => ({
             title: item.title,
-            subtitle: `${item.description} · ${item.date}`,
+            subtitle: `${item.description} - ${item.date}`,
             tag: item.audience,
           }))}
+          emptyLabel="No announcements found."
         />
       ) : null}
     </ContentPanel>
@@ -557,7 +602,7 @@ function SimpleList({
     <Stack spacing={1.2}>
       {items.map((item) => (
         <Stack
-          key={`${item.title}-${item.subtitle}`}
+          key={`${item.title}-${item.subtitle}-${item.tag}`}
           direction={{ xs: "column", md: "row" }}
           justifyContent="space-between"
           alignItems={{ xs: "flex-start", md: "center" }}

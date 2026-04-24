@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, MenuItem, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, MenuItem, Stack, TextField, Typography } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ContentPanel, PageIntro } from "../../_components/dashboard-ui";
@@ -50,8 +50,12 @@ export default function AttendanceCalendarPage() {
 
       if (Array.isArray(employeeData)) {
         setEmployees(employeeData);
-        if (employeeData.length > 0) {
-          setSelectedId(employeeData[0].id);
+        if (authData.user.role === "Manager" || authData.user.role === "HR") {
+          if (employeeData.length > 0) {
+            setSelectedId(employeeData[0].id);
+          }
+        } else {
+          setSelectedId(authData.user.id);
         }
       }
     };
@@ -96,11 +100,14 @@ export default function AttendanceCalendarPage() {
 
   return (
     <Box>
-      <PageIntro
+      <Box sx={{display:'flex',justifyContent:'space-between'}}>
+        <PageIntro
         eyebrow="Attendance Calendar"
         title="Monthly attendance calendar"
         description="Review daily presence, absences, and working-hour snapshots in a clear month view."
       />
+      <Button variant="contained" sx={{height:50}} onClick={()=>router.push("/attendance")}>Back to Attendance</Button>
+      </Box>
 
       <ContentPanel
         title="Calendar"
@@ -164,8 +171,12 @@ export default function AttendanceCalendarPage() {
                   backgroundColor:
                     data?.status === "present"
                       ? "#dcfce7"
+                      : data?.status === "leave"
+                      ? "#fef3c7"
                       : data?.status === "absent"
                       ? "#fee2e2"
+                      : data?.status === "holiday"
+                      ? "#e0f2fe"
                       : "#f1f5f9",
                 }}
               >
@@ -178,8 +189,12 @@ export default function AttendanceCalendarPage() {
                     color:
                       data?.status === "present"
                         ? "#15803d"
+                        : data?.status === "leave"
+                        ? "#b45309"
                         : data?.status === "absent"
                         ? "#dc2626"
+                        : data?.status === "holiday"
+                        ? "#0369a1"
                         : "#64748b",
                     textTransform: "capitalize",
                   }}

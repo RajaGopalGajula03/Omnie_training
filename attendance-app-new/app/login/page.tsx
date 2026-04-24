@@ -8,12 +8,13 @@ import ShieldOutlinedIcon from "@mui/icons-material/ShieldOutlined";
 import { useFormik } from "formik";
 import { useState } from "react";
 import * as Yup from "yup";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
     const [showLogin, setShowLogin] = useState(false);
     const [loginError, setLoginError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const router = useRouter();
     const featureCards = [
         {
             icon: <Groups2OutlinedIcon sx={{ fontSize: 22 }} />,
@@ -57,7 +58,7 @@ export default function Login() {
                 const data = await res.json();
 
                 if (res.ok) {
-                    window.location.href = "/dashboard";
+                    router.push("/dashboard");
                     return;
                 }
 

@@ -1,7 +1,6 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
-
 export const fetchEmployees = createAsyncThunk(
     "employee/fetchEmployees",
     async (_, { rejectWithValue }) => {
@@ -14,7 +13,7 @@ export const fetchEmployees = createAsyncThunk(
         if (!res.ok) {
             throw new Error("Failed to fetch employees");
         }
-        return res.json();
+        return await res.json();
     }
 );
 
@@ -31,30 +30,6 @@ export const fetchEmployeeDetails = createAsyncThunk(
         return { empData, attData };
     }
 )
-// export const updateEmployee = createAsyncThunk(
-//     "employee/updateEmployee",
-//     async (
-//         { id, data }: { id: number; data: Partial<Employee> },
-//         { rejectWithValue }
-//     ) => {
-//         const res = await fetch(`/api/employees/${id}`, {
-//             method: "PUT",
-//             headers: { "Content-Type": "application/json" },
-//             credentials: "include",
-//             body: JSON.stringify(data),
-//         });
-
-//         if (res.status === 401) {
-//             return rejectWithValue("unauthorized");
-//         }
-
-//         if (!res.ok) {
-//             return rejectWithValue("Update failed");
-//         }
-
-//         return res.json();
-//     }
-// );
 
 export type Attendance = {
     date: string;
@@ -78,8 +53,6 @@ type EmployeeState = {
     loading: boolean;
     error: string | null;
 };
-
-
 
 const initialState: EmployeeState = {
     attendance: [],
@@ -118,26 +91,6 @@ const employeeSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
-
-            // .addCase(updateEmployee.pending, (state) => {
-            //     state.loading = true;
-            // })
-            // .addCase(updateEmployee.fulfilled, (state, action) => {
-            //     state.loading = false;
-            //     state.employee = action.payload;
-
-            //     const index = state.employees.findIndex(
-            //         (e) => e.id === action.payload.id
-            //     );
-
-            //     if (index !== -1) {
-            //         state.employees[index] = action.payload;
-            //     }
-            // })
-            // .addCase(updateEmployee.rejected, (state, action) => {
-            //     state.loading = false;
-            //     state.error = action.payload as string;
-            // })
     }
 })
 

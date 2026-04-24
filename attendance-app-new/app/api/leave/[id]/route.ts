@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { ADMIN_ROLES, forbiddenJson, getRequestSession, hasAnyRole, unauthorizedJson } from "@/lib/auth";
-import { updateLeaveRequestStatus } from "@/lib/dashboard-data";
+import { updateLeaveRequest } from "@/lib/dashboard-data";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -19,13 +19,13 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   const { id } = await params;
   const body = await req.json();
-  const status = body.status as "approved" | "rejected" | "pending";
-
-  if (!["approved", "rejected", "pending"].includes(status)) {
-    return Response.json({ message: "Invalid status" }, { status: 400 });
-  }
-
-  const updated = updateLeaveRequestStatus(Number(id), status);
+  const updated = updateLeaveRequest(Number(id), {
+    leaveType: body.leaveType,
+    fromDate: body.fromDate,
+    toDate: body.toDate,
+    reason: body.reason,
+    status: body.status,
+  });
 
   if (!updated) {
     return Response.json({ message: "Leave request not found" }, { status: 404 });
