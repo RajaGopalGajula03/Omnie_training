@@ -309,7 +309,7 @@ export function getEmployeeAttendanceSummary(employeeId: number) {
   const records = getEmployeeAttendanceRecords(employeeId);
 
   return {
-    records,
+    records,  
     presentCount: records.filter((item) => item.status === "present").length,
     absentCount: records.filter((item) => item.status === "absent").length,
     holidayCount: records.filter((item) => item.status === "holiday").length,

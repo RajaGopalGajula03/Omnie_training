@@ -85,7 +85,7 @@ export function generateAttendance(userId: number) {
                     attendance.push({
                         userId,
                         date: dateStr,
-                        checkIn: randomTime("08:00", startCheckIn, userId, current.getDate()), // after 9 & before now
+                        checkIn: randomTime("08:00", startCheckIn, userId, current.getDate()),
                         checkOut: now.getHours() >= 18
                             ? randomTime("18:00", currentTime, userId + 10, current.getDate())
                             : null,
@@ -123,12 +123,7 @@ export function getAttendanceRecords(userId: number) {
             (item) => item.userId === userId && item.date === record.date
         );
 
-        return override
-            ? {
-                ...record,
-                ...override,
-            }
-            : record;
+        return override ? {...record,...override,}: record;
     });
 }
 

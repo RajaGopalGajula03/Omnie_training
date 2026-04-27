@@ -13,13 +13,7 @@ import AssignmentTurnedInOutlinedIcon from "@mui/icons-material/AssignmentTurned
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  departments,
-  getEmployeeAttendanceSummary,
-  getEmployeeById,
-  getRoleLabelFromRoute,
-  type LeaveRequest,
-} from "@/lib/dashboard-data";
+import {departments,getEmployeeAttendanceSummary,getEmployeeById,getRoleLabelFromRoute,type LeaveRequest,} from "@/lib/dashboard-data";
 import { generateAttendance } from "@/lib/data";
 import { ContentPanel, MetricCard, PageIntro } from "../_components/dashboard-ui";
 
