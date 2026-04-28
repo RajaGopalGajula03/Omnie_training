@@ -167,7 +167,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       <List sx={{ px: 1.5, py: 2, flex: 1 }}>
         {navItems.map((item) => {
-          const selected = item.href ? pathname === item.href : item.children?.some((child) => pathname === child.href);
+          const selected = item.href ? pathname === item.href : item.children?.some((child) => pathname === child.href) || false;
 
           if (item.children) {
             return (
