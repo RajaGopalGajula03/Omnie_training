@@ -1,16 +1,40 @@
 import { signToken } from "@/lib/jwt";
 import { NextResponse } from "next/server";
-import { employees } from "@/lib/data";
+// import { employees } from "@/lib/data";
+import { RowDataPacket } from "mysql2";
+import bcrypt from "bcrypt";
+import { db } from "../../../lib/db";
 
 
-export async function POST(req:Request){
+export async function POST(req: Request) {
 
-    const {email,password} = await req.json();
+    try {
+        const { email, password } = await req.json();
 
-    const user = employees.find(e=>e.email === email && e.password === password);
+        if(!email || !password)
+        {
+            return NextResponse.json({message:"Missing fields"},{status:400})
+        }
 
-    if(user)
-    {
+        const [rows] = await db.execute<RowDataPacket[]>(
+            "SELECT * FROM employees where email = ?", [email]
+        );
+
+        // const user = employees.find(e=>e.email === email && e.password === password);
+
+        if (rows.length === 0) {
+            return NextResponse.json({ message: "Invalid Credentials" }, { status: 401 })
+        }
+
+        const user = rows[0];
+
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+
+        if (!isMatch) {
+            return NextResponse.json({ message: "Invalid Credentials" }, { status: 401 })
+        }
+
+
         const token = signToken({
             id: user.id,
             role: user.role,
@@ -19,20 +43,23 @@ export async function POST(req:Request){
         });
 
         const res = NextResponse.json({
-            success:true,
+            success: true,
             user: {
                 id: user.id,
                 name: user.name,
                 email: user.email,
-                role:user.role,
+                role: user.role,
             },
         });
-        res.cookies.set("token",token,{
-            httpOnly:true,
-            path:'/',
-            sameSite:"lax",
+        res.cookies.set("token", token, {
+            httpOnly: true,
+            path: '/',
+            sameSite: "lax",
         })
         return res;
     }
-    return NextResponse.json({message:"Invalid Credentials"},{status:401})
+    catch (error) {
+        console.error("Login error : ", error);
+        return NextResponse.json({ message: "Server Error" }, { status: 500 });
+    }
 }

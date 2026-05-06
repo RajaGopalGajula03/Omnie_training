@@ -18,6 +18,15 @@ const roles = [
   "HR",
 ];
 
+const roleDepartmentMap: Record<string, number> = {
+  "Trainee": 1,
+  "Jr Developer": 1,
+  "Software Engineer": 1,
+  "Senior Developer": 1,
+  "Manager": 3,
+  "HR": 2,
+};
+
 export default function AddEmployee() {
   const router = useRouter();
   const [submitError, setSubmitError] = useState("");
@@ -28,12 +37,14 @@ export default function AddEmployee() {
       email: "",
       password: "",
       role: "",
+      department_id: 0,
     },
     validationSchema: Yup.object({
       name: Yup.string().required("Name is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
       password: Yup.string().min(4, "Minimum 4 characters").required("Password is required"),
       role: Yup.string().required("Role is required"),
+      department_id: Yup.number().typeError("Department Id required").required("Department Id required"),
     }),
     onSubmit: async (values, { resetForm }) => {
       setSubmitError("");
@@ -104,7 +115,6 @@ export default function AddEmployee() {
               error={formik.touched.email && Boolean(formik.errors.email)}
               helperText={formik.touched.email && formik.errors.email}
             />
-
             <TextField
               fullWidth
               type="password"
@@ -123,7 +133,11 @@ export default function AddEmployee() {
               label="Role"
               name="role"
               value={formik.values.role}
-              onChange={formik.handleChange}
+              onChange={(e) => {
+                const selectedRole = e.target.value;
+                formik.setFieldValue("role", selectedRole);
+                formik.setFieldValue("department_id", roleDepartmentMap[selectedRole] || 0);
+              }}
               onBlur={formik.handleBlur}
               error={formik.touched.role && Boolean(formik.errors.role)}
               helperText={formik.touched.role && formik.errors.role}
@@ -133,6 +147,14 @@ export default function AddEmployee() {
                   {role}
                 </MenuItem>
               ))}
+            </TextField>
+            <TextField
+              fullWidth
+              label="Department Id"
+              name="department_id"
+              value={formik.values.department_id}
+              InputProps={{ readOnly: true }}
+            >
             </TextField>
 
             {submitError ? <Alert severity="error">{submitError}</Alert> : null}

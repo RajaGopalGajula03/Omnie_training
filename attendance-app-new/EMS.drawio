@@ -1,0 +1,112 @@
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="tFv0gCKD1v-MurNlFjF4">
+    <mxGraphModel dx="1727" dy="937" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="qgA96XvXB2dky3rK8rR0-238" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=20;" value="PK  id : INT&lt;br&gt;    name : VARCHAR(100)&lt;br&gt;FK  lead_employee_id : INT&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="185" width="360" x="41" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-240" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=20;" value="PK  id : INT&lt;br&gt;    employee_code : VARCHAR(30)&lt;br&gt;    name : VARCHAR(120)&lt;br&gt;    email : VARCHAR(150)&lt;br&gt;    password_hash : VARCHAR(255)&lt;br&gt;    role : ENUM&lt;br&gt;FK  department_id : INT&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    is_active : BOOLEAN&lt;br&gt;    join_date : DATE&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="360" width="380" x="535" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-244" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Departments&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="150" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-245" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" value="Employees" vertex="1">
+          <mxGeometry height="30" width="150" x="650" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-246" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;fontSize=20;align=left;" value="PK  id : INT&lt;br&gt;    title : VARCHAR(200)&lt;br&gt;    description : TEXT&lt;br&gt;    audience : ENUM&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    publish_date : DATE&lt;br&gt;    is_active : BOOLEAN&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="320" width="370" x="1090" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-247" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Announcements&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="1260" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-248" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;fontSize=20;align=left;" value="PK  id : INT&lt;br&gt;FK  employee_id : INT&lt;br&gt;    attendance_date : DATE&lt;br&gt;    check_in : TIME&lt;br&gt;    check_out : TIME&lt;br&gt;    status : ENUM&lt;br&gt;    notes : VARCHAR(255)&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="345" width="370" x="36" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-250" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=20;" value="PK  id : INT&lt;br&gt;FK  employee_id : INT&lt;br&gt;    leave_type : ENUM&lt;br&gt;    from_date : DATE&lt;br&gt;    to_date : DATE&lt;br&gt;    total_days : INT&lt;br&gt;    reason : TEXT&lt;br&gt;    status : ENUM&lt;br&gt;FK  approved_by : INT&lt;br&gt;    approved_at : DATETIME&lt;br&gt;    admin_remark : TEXT&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="430" width="370" x="553" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-251" parent="1" style="shape=ext;double=1;rounded=0;whiteSpace=wrap;html=1;align=left;fontSize=20;" value="PK  id : INT&lt;br&gt;FK  employee_id : INT&lt;br&gt;    payroll_month : VARCHAR(7)&lt;br&gt;    amount : DECIMAL(12,2)&lt;br&gt;    status : ENUM&lt;br&gt;    processed_date : DATE&lt;br&gt;    remarks : TEXT&lt;br&gt;FK  created_by : INT&lt;br&gt;FK  updated_by : INT&lt;br&gt;    created_at : DATETIME&lt;br&gt;    updated_at : DATETIME&lt;br&gt;    deleted_at : DATETIME NULL" vertex="1">
+          <mxGeometry height="360" width="370" x="1105" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-252" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Attendance_Records&lt;/font&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="210" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-253" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" value="Leave_Requests" vertex="1">
+          <mxGeometry height="30" width="60" x="708" y="520" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-254" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="&lt;font style=&quot;font-size: 20px;&quot;&gt;Payrolls&lt;/font&gt;&lt;div&gt;&lt;font style=&quot;font-size: 20px;&quot;&gt;&lt;br&gt;&lt;/font&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="30" width="60" x="1280" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-259" edge="1" parent="1" source="qgA96XvXB2dky3rK8rR0-238" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERzeroToMany;endFill=1;rounded=0;curved=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="480" y="260" as="sourcePoint" />
+            <mxPoint x="530" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-260" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1 to many" vertex="1">
+          <mxGeometry height="30" width="60" x="450" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-261" edge="1" parent="1" source="qgA96XvXB2dky3rK8rR0-238" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;curved=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="500" y="330" as="sourcePoint" />
+            <mxPoint x="530" y="130" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-262" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Leads" vertex="1">
+          <mxGeometry height="30" width="60" x="450" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-268" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="applies" vertex="1">
+          <mxGeometry height="30" width="60" x="535" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-269" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;curved=1;" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="530" y="130" as="sourcePoint" />
+            <mxPoint x="41" y="650" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-270" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1 to many" vertex="1">
+          <mxGeometry height="30" width="60" x="230" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-273" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;curved=1;" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="920" y="130" as="sourcePoint" />
+            <mxPoint x="553" y="620" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-274" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;curved=1;entryX=0.987;entryY=0.653;entryDx=0;entryDy=0;entryPerimeter=0;" target="qgA96XvXB2dky3rK8rR0-250" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="920" y="130.01" as="sourcePoint" />
+            <mxPoint x="920.04" y="799.99" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-275" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="Approves" vertex="1">
+          <mxGeometry height="30" width="60" x="910" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-276" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;curved=1;entryX=-0.003;entryY=0.293;entryDx=0;entryDy=0;entryPerimeter=0;" target="qgA96XvXB2dky3rK8rR0-251" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="920" y="130" as="sourcePoint" />
+            <mxPoint x="800" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-277" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1 to many" vertex="1">
+          <mxGeometry height="30" width="60" x="1010" y="460" as="geometry" />
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-278" edge="1" parent="1" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERoneToMany;rounded=0;curved=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="qgA96XvXB2dky3rK8rR0-246" value="">
+          <mxGeometry height="100" relative="1" width="100" as="geometry">
+            <mxPoint x="920" y="130" as="sourcePoint" />
+            <mxPoint x="800" y="490" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qgA96XvXB2dky3rK8rR0-279" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="creates" vertex="1">
+          <mxGeometry height="30" width="60" x="970" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="audit-note-1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;align=left;fontSize=16;fillColor=#fff2cc;strokeColor=#d6b656;" value="Audit Note:&lt;br&gt;- created_by and updated_by reference Employees.id&lt;br&gt;- deleted_at is used for soft delete&lt;br&gt;- audit FK lines are not drawn separately to keep the diagram readable" vertex="1">
+          <mxGeometry x="1090" y="950" width="420" height="110" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
