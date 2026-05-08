@@ -1,6 +1,8 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { ADMIN_ROLES, forbiddenJson, getRequestSession, hasAnyRole, unauthorizedJson, } from "@/lib/auth";
-import { updateAnnouncement } from "@/lib/dashboard-data";
+// import { updateAnnouncement } from "@/lib/dashboard-data";
+import { ResultSetHeader } from "mysql2";
+import { db } from "@/lib/db";
 
 type RouteContext = {
   params: Promise<{ id: string }>;
@@ -18,17 +20,22 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
   }
 
   const { id } = await params;
-  const body = await req.json();
-  const updated = updateAnnouncement(Number(id), {
-    title: body.title,
-    description: body.description,
-    audience: body.audience,
-    date: body.date,
-  });
+  const announcementId = Number(id);
 
-  if (!updated) {
-    return Response.json({ message: "Announcement not found" }, { status: 404 });
+  const body = await req.json();
+
+  const { title, description, audience, publish_date, is_active, } = body;
+
+  const formattedDate = publish_date.split("T")[0];
+
+  const [result] = await db.execute<ResultSetHeader>(
+    `UPDATE announcements SET title=?,description = ?,audience = ?, publish_date =?,is_active=?,updated_by=?
+    where id = ? AND deleted_at is NULL`, [title, description, audience, formattedDate, is_active, session.user.id, announcementId]
+  );
+
+  if (result.affectedRows === 0) {
+    return NextResponse.json({ message: "Announcement not found." }, { status: 404 });
   }
 
-  return Response.json(updated);
+  return NextResponse.json({ message: "Announcement updated successfully." })
 }

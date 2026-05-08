@@ -44,6 +44,14 @@ export async function GET(req: NextRequest, { params }: RouteContext) {
     });
 }
 
+const roleDepartmentMap: Record<string, number> = {
+    "Trainee": 1,
+    "Jr Developer": 1,
+    "Software Engineer": 1,
+    "Senior Developer": 1,
+    "Manager": 3,
+    "HR": 2,
+};
 export async function PUT(req: NextRequest, { params }: RouteContext) {
     const session = getRequestSession(req);
 
@@ -59,7 +67,13 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     const body = await req.json();
     const employeeId = Number(id);
 
-    const { name, email, role, department_id } = body;
+
+    const { name, email, role } = body;
+    const department_id = roleDepartmentMap[role];
+
+    if (!department_id) {
+        return NextResponse.json({ message: "Invalid role selected" }, { status: 400 })
+    }
 
     const [result] = await db.execute<ResultSetHeader>(
         `UPDATE employees SET name = ?, email = ?, role = ?, department_id = ?, updated_by = ? WHERE id = ? AND deleted_at IS NULL`,

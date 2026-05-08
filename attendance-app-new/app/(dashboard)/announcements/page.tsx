@@ -22,21 +22,24 @@ type Announcement = {
   title: string;
   description: string;
   audience: "all" | "admin" | "employee";
-  date: string;
+  publish_date: string;
+  is_active:boolean;
 };
 
 type AnnouncementForm = {
   title: string;
   description: string;
   audience: Announcement["audience"];
-  date: string;
+  publish_date: string;
+  is_active:boolean;
 };
 
 const defaultForm: AnnouncementForm = {
   title: "",
   description: "",
   audience: "all",
-  date: new Date().toISOString().slice(0, 10),
+  publish_date: new Date().toISOString().slice(0, 10),
+  is_active:true,
 };
 
 export default function AnnouncementsPage() {
@@ -109,7 +112,8 @@ export default function AnnouncementsPage() {
       title: item.title || "",
       description: item.description || "",
       audience: item.audience || "all",
-      date: item.date || new Date().toISOString().slice(0, 10),
+      publish_date: item.publish_date || new Date().toISOString().slice(0, 10),
+      is_active: item.is_active ?? true,
     });
   };
 
@@ -264,9 +268,9 @@ export default function AnnouncementsPage() {
               <TextField
                 type="date"
                 label="Date"
-                value={createForm.date}
+                value={createForm.publish_date}
                 onChange={(event) =>
-                  setCreateForm((current) => ({ ...current, date: event.target.value }))
+                  setCreateForm((current) => ({ ...current, publish_date: event.target.value }))
                 }
                 InputLabelProps={{ shrink: true }}
               />
@@ -350,9 +354,9 @@ export default function AnnouncementsPage() {
                           fullWidth
                           type="date"
                           label="Date"
-                          value={editForm.date}
+                          value={editForm.publish_date}
                           onChange={(event) =>
-                            setEditForm((current) => ({ ...current, date: event.target.value }))
+                            setEditForm((current) => ({ ...current, publish_date: event.target.value }))
                           }
                           InputLabelProps={{ shrink: true }}
                         />
@@ -370,7 +374,7 @@ export default function AnnouncementsPage() {
                         </Typography>
                         <Stack direction="row" spacing={1} alignItems="center">
                           <Chip label={item.audience} size="small" />
-                          <Typography sx={{ color: "#94a3b8", fontSize: 13 }}>{item.date}</Typography>
+                          <Typography sx={{ color: "#94a3b8", fontSize: 13 }}>{item.publish_date}</Typography>
                         </Stack>
                       </Stack>
                       <Typography sx={{ mt: 1, color: "#64748b", lineHeight: 1.7 }}>
