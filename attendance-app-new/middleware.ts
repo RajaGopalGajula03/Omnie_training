@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import { ADMIN_ROLES, getOptimisticSession, hasAnyRole } from "./lib/auth";
+import { ADMIN_ROLES, getOptimisticSession, hasAnyRole } from "./lib/auth-edge";
 
 export function middleware(req: NextRequest) {
     const session = getOptimisticSession(req);

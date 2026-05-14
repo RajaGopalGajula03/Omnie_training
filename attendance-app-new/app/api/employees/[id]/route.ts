@@ -9,7 +9,7 @@ type RouteContext = {
 };
 
 export async function GET(req: NextRequest, { params }: RouteContext) {
-    const session = getRequestSession(req);
+    const session =await getRequestSession(req);
 
     if (!session) {
         return unauthorizedJson();
@@ -53,7 +53,7 @@ const roleDepartmentMap: Record<string, number> = {
     "HR": 2,
 };
 export async function PUT(req: NextRequest, { params }: RouteContext) {
-    const session = getRequestSession(req);
+    const session =await getRequestSession(req);
 
     if (!session) {
         return unauthorizedJson();
@@ -102,7 +102,7 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteContext) {
-    const session = getRequestSession(req);
+    const session =await getRequestSession(req);
 
     if (!session) {
         return unauthorizedJson();

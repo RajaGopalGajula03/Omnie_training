@@ -9,6 +9,7 @@ export type LeaveRequest = {
   days: number;
   reason: string;
   status: "pending" | "approved" | "rejected";
+  adminRemark: string | null;
 };
 
 export type Announcement = {
@@ -82,6 +83,7 @@ export const leaveRequests: LeaveRequest[] = [
     days: 2,
     reason: "Family function",
     status: "pending",
+    adminRemark: null,
   },
   {
     id: 2,
@@ -92,6 +94,8 @@ export const leaveRequests: LeaveRequest[] = [
     days: 3,
     reason: "Medical leave",
     status: "approved",
+    adminRemark: null,
+
   },
   {
     id: 3,
@@ -102,6 +106,8 @@ export const leaveRequests: LeaveRequest[] = [
     days: 1,
     reason: "Personal work",
     status: "pending",
+    adminRemark: null,
+
   },
   {
     id: 4,
@@ -112,6 +118,8 @@ export const leaveRequests: LeaveRequest[] = [
     days: 2,
     reason: "Travel",
     status: "approved",
+    adminRemark: null,
+
   },
   {
     id: 5,
@@ -122,6 +130,8 @@ export const leaveRequests: LeaveRequest[] = [
     days: 2,
     reason: "Conference attendance",
     status: "pending",
+    adminRemark: null,
+
   },
 ];
 
@@ -221,6 +231,7 @@ export function createLeaveRequest(input: {
     days: calculateLeaveDays(input.fromDate, input.toDate),
     reason: input.reason,
     status: "pending",
+    adminRemark : null,
   };
 
   leaveRequests.unshift(leave);
@@ -309,7 +320,7 @@ export function getEmployeeAttendanceSummary(employeeId: number) {
   const records = getEmployeeAttendanceRecords(employeeId);
 
   return {
-    records,  
+    records,
     presentCount: records.filter((item) => item.status === "present").length,
     absentCount: records.filter((item) => item.status === "absent").length,
     holidayCount: records.filter((item) => item.status === "holiday").length,

@@ -7,7 +7,7 @@ import { ResultSetHeader, RowDataPacket } from "mysql2";
 
 
 export async function GET(req: NextRequest) {
-    const session = getRequestSession(req);
+    const session =await getRequestSession(req);
 
     if (!session) {
         return unauthorizedJson();
@@ -47,7 +47,7 @@ function getCurrentDateKey() {
 }
 
 export async function POST(req: NextRequest) {
-    const session = getRequestSession(req);
+    const session =await getRequestSession(req);
 
     if (!session) {
         return unauthorizedJson();

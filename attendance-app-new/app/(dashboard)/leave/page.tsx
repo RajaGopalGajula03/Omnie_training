@@ -1,16 +1,6 @@
 "use client";
 
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Alert, Box, Button, Chip, CircularProgress, MenuItem, Stack, TextField, Typography, } from "@mui/material";
 import AddTaskOutlinedIcon from "@mui/icons-material/AddTaskOutlined";
 import PendingActionsOutlinedIcon from "@mui/icons-material/PendingActionsOutlined";
 import TaskAltOutlinedIcon from "@mui/icons-material/TaskAltOutlined";
@@ -43,6 +33,7 @@ type LeaveEditForm = {
   toDate: string;
   reason: string;
   status: LeaveRequest["status"];
+  adminRemark: string;
 };
 
 const leaveTypeOptions = ["Casual Leave", "Sick Leave", "Comp Off", "Work From Home"];
@@ -90,6 +81,7 @@ export default function LeavePage() {
     toDate: "",
     reason: "",
     status: "pending",
+    adminRemark: "",
   });
 
   const isAdmin = user?.role === "Manager" || user?.role === "HR";
@@ -216,10 +208,11 @@ export default function LeavePage() {
     setEditingId(leave.id);
     setEditForm({
       leaveType: leave.leaveType || leaveTypeOptions[0],
-      fromDate: leave.fromDate || "",
-      toDate: leave.toDate || "",
+      fromDate: leave.fromDate?.slice(0,10) || "",
+      toDate: leave.toDate?.slice(0,10) || "",
       reason: leave.reason || "",
       status: leave.status || "pending",
+      adminRemark: leave.adminRemark || "",
     });
   };
 
@@ -430,6 +423,18 @@ export default function LeavePage() {
                         value={editForm.reason}
                         onChange={(event) =>
                           setEditForm((current) => ({ ...current, reason: event.target.value }))
+                        }
+                      />
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Admin Remark"
+                        value={editForm.adminRemark}
+                        onChange={(event) =>
+                          setEditForm((current) => ({
+                            ...current,
+                            adminRemark: event.target.value,
+                          }))
                         }
                       />
 

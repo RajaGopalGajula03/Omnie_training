@@ -14,6 +14,7 @@ export default function LeaveApprovalsPage() {
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
 
   const loadLeaves = async () => {
     const res = await fetch("/api/leave", { credentials: "include" });
@@ -71,6 +72,13 @@ export default function LeaveApprovalsPage() {
     await loadLeaves();
   };
 
+  const filteredLeaves = useMemo(() => {
+    if (filter === "pending") return leaves.filter((i) => i.status === "pending");
+    if (filter === "approved") return leaves.filter((i) => i.status === "approved");
+    if (filter === "rejected") return leaves.filter((i) => i.status === "rejected");
+    return leaves;
+  }, [leaves, filter]);
+
   if (loading) {
     return (
       <Box sx={{ display: "grid", placeItems: "center", minHeight: 260 }}>
@@ -101,9 +109,21 @@ export default function LeaveApprovalsPage() {
           mb: 6,
         }}
       >
-        <MetricCard label="Pending Approvals" value={pending.length} icon={<PendingActionsOutlinedIcon />} hint="Waiting in the queue" color="#ffedd5" />
-        <MetricCard label="Approved Requests" value={approved.length} icon={<TaskAltOutlinedIcon />} hint="Resolved successfully" color="#dcfce7" />
-        <MetricCard label="Rejected Requests" value={rejected.length} icon={<EventBusyOutlinedIcon />} hint="Declined items" color="#fee2e2" />
+        <MetricCard
+          label="Pending Approvals" value={pending.length}
+          icon={<PendingActionsOutlinedIcon />} hint="Waiting in the queue" color="#ffedd5"
+          onClick={() => setFilter("pending")}
+        />
+        <MetricCard
+          label="Approved Requests" value={approved.length}
+          icon={<TaskAltOutlinedIcon />} hint="Resolved successfully" color="#dcfce7"
+          onClick={() => setFilter("approved")}
+        />
+        <MetricCard 
+        label="Rejected Requests" value={rejected.length} 
+        icon={<EventBusyOutlinedIcon />} hint="Declined items" color="#fee2e2" 
+        onClick={() => setFilter("rejected")}
+        />
       </Box>
 
       <ContentPanel
@@ -111,7 +131,7 @@ export default function LeaveApprovalsPage() {
         subtitle="Approve or reject requests without leaving this page."
       >
         <Stack spacing={1.4}>
-          {pending.map((item) => {
+          {filteredLeaves.map((item) => {
             const employee = getEmployeeById(item.employeeId);
 
             return (

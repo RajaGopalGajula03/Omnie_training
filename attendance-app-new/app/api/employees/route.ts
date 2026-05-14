@@ -7,7 +7,7 @@ import bcrypt from 'bcrypt';
 
 
 export async function GET(req: NextRequest) {
-  const session = getRequestSession(req);
+  const session =await getRequestSession(req);
 
   if (!session) {
     return unauthorizedJson();
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
 
   if (!hasAnyRole(session.user.role, ADMIN_ROLES)) {
     const [rows] = await db.execute<RowDataPacket[]>(
-      "SELECT * FROM employees WHERE id = ?", [session.user.id]
+      "SELECT * FROM employees WHERE id = ? AND deleted_at IS NULL", [session.user.id]
     )
     return NextResponse.json(rows);
   }
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest,) {
-  const session = getRequestSession(req);
+  const session =await getRequestSession(req);
 
   if (!session) {
     return unauthorizedJson();

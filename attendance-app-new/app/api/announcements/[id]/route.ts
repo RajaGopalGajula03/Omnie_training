@@ -9,7 +9,7 @@ type RouteContext = {
 };
 
 export async function PUT(req: NextRequest, { params }: RouteContext) {
-  const session = getRequestSession(req);
+  const session = await getRequestSession(req);
 
   if (!session) {
     return unauthorizedJson();

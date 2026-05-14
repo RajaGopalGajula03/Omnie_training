@@ -1,50 +1,62 @@
 import { NextRequest, NextResponse } from "next/server";
-import { employees, type Employee } from "@/lib/data";
+// import { employees, type Employee } from "@/lib/data";
 import { verifyToken, type AuthTokenPayload } from "@/lib/jwt";
+import { db } from "./db";
+import { RowDataPacket } from "mysql2";
 
 export const ADMIN_ROLES = ["Manager", "HR"] as const;
 
-export type AppRole = Employee["role"];
+export type SessionUser = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
 
-export type SessionUser = Pick<Employee, "id" | "name" | "email" | "role">;
+export type RequestSession = {
+  token: string;
+  payload: AuthTokenPayload;
+  user: SessionUser;
+};
 
-export function getUserById(id: number) {
-  return employees.find((employee) => employee.id === id) ?? null;
+export async function getUserById(id: number): Promise<SessionUser | null> {
+  const[rows] = await db.execute<RowDataPacket[]>(
+    `SELECT id,name,email,role from employees WHERE id = ? AND deleted_at IS NULL AND is_active = TRUE
+    `,[id]
+  );
+  return (rows[0] as SessionUser) ?? null;
 }
 
-export function toSessionUser(employee: Employee): SessionUser {
-  return {
-    id: employee.id,
-    name: employee.name,
-    email: employee.email,
-    role: employee.role,
-  };
-}
+// export function toSessionUser(employee: Employee): SessionUser {
+//   return {
+//     id: employee.id,
+//     name: employee.name,
+//     email: employee.email,
+//     role: employee.role,
+//   };
+// }
 
-export function getRequestSession(req: NextRequest) {
+export async function getRequestSession(req:NextRequest): Promise<RequestSession | null>  {
   const token = req.cookies.get("token")?.value;
 
-  if (!token) {
+  if(!token)
+  {
     return null;
   }
 
   const payload = verifyToken(token);
 
-  if (!payload || typeof payload === "string") {
+  if(!payload || typeof payload === "string")
+  {
     return null;
   }
 
-  const employee = getUserById(payload.id);
+  const employee =await getUserById(payload.id);
 
-  if (!employee) {
-    return null;
+  if(!employee) return null;
+  return{
+    token,payload : payload as AuthTokenPayload, user : employee,
   }
-
-  return {
-    token,
-    payload: payload as AuthTokenPayload,
-    user: toSessionUser(employee),
-  };
 }
 
 function decodeBase64Url(value: string) {

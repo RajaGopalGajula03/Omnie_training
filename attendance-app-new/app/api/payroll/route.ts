@@ -1,23 +1,36 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {ADMIN_ROLES,forbiddenJson,getRequestSession,hasAnyRole,unauthorizedJson,} from "@/lib/auth";
-import { createPayrollItem, payrollItems } from "@/lib/dashboard-data";
+// import { createPayrollItem, payrollItems } from "@/lib/dashboard-data";
+import { db } from "@/lib/db";
+import { ResultSetHeader, RowDataPacket } from "mysql2";
+
 
 export async function GET(req: NextRequest) {
-  const session = getRequestSession(req);
+  const session =await getRequestSession(req);
 
   if (!session) {
     return unauthorizedJson();
   }
 
+  // admin can see all payrolls
   if (hasAnyRole(session.user.role, ADMIN_ROLES)) {
-    return Response.json(payrollItems);
+    
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT id,employee_id as employeeId, payroll_month as month,status,amount FROM payrolls ORDER BY id DESC`
+    );
+    return NextResponse.json(rows);
   }
 
-  return Response.json(payrollItems.filter((item) => item.employeeId === session.user.id));
+  // employee can see own payroll 
+  const [rows] = await db.execute<RowDataPacket[]>(
+    `SELECT * FROM payrolls WHERE employee_id = ? ORDER BY id DESC`,[session.user.id]
+  );
+
+  return NextResponse.json(rows);
 }
 
 export async function POST(req: NextRequest) {
-  const session = getRequestSession(req);
+  const session =await getRequestSession(req);
 
   if (!session) {
     return unauthorizedJson();
@@ -28,13 +41,17 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
+  
+  // console.log("payroll route body",body);
 
-  const payrollItem = createPayrollItem({
-    employeeId: Number(body.employeeId),
-    month: body.month,
-    status: body.status,
-    amount: Number(body.amount),
-  });
+  const [ressult] = await db.execute<ResultSetHeader>(
+    `INSERT INTO payrolls (employee_id,payroll_month,status,amount) VALUES(?,?,?,?)`,
+    [Number(body.employeeId),body.month,body.status,Number(body.amount)]
+  );
 
-  return Response.json(payrollItem, { status: 201 });
+  const [rows] = await db.execute<RowDataPacket[]>(
+    `SELECT * FROM payrolls WHERE id = ?`,[ressult.insertId]
+  );
+  
+  return Response.json(rows[0], { status: 201 });
 }

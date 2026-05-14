@@ -61,7 +61,7 @@ export default function ApplyLeavePage() {
 
       <ContentPanel
         title="Leave request form"
-        subtitle="This is a polished request form layout ready for your leave workflow."
+        
         sx={{ maxWidth: 760 }}
       >
         <Box component="form" onSubmit={formik.handleSubmit}>

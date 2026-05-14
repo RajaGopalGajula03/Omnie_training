@@ -21,6 +21,22 @@ export default function EmployeesPage() {
   const router = useRouter();
   const [pageSize, setPageSize] = useState(5);
   const { employees, loading, error } = useSelector((state: RootState) => state.employee);
+  const [filter, setFilter] = useState<"all" | "roles" | "emails">("all");
+
+// const rolesCount = new Set(employees.map((e) => e.role)).size;
+
+const filteredEmployees = (() => {
+  if (filter === "roles") {
+    // no real row-level role filtering possible for “distinct roles”
+    return employees;
+  }
+
+  if (filter === "emails") {
+    return employees;
+  }
+
+  return employees;
+})();
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -138,9 +154,9 @@ export default function EmployeesPage() {
           mb: 7,
         }}
       >
-        <MetricCard label="Total Employees" value={employees.length} icon={<GroupsOutlinedIcon />} hint="Current workforce count" color="#dbeafe" />
-        <MetricCard label="Distinct Roles" value={new Set(employees.map((item) => item.role)).size} icon={<BadgeOutlinedIcon />} hint="Role coverage in the org" color="#dcfce7" />
-        <MetricCard label="Active Emails" value={employees.length} icon={<MailOutlineOutlinedIcon />} hint="Reachable employee accounts" color="#ffedd5" />
+        <MetricCard label="Total Employees" value={employees.length} icon={<GroupsOutlinedIcon />} hint="Current workforce count" color="#dbeafe"  onClick={() => setFilter("all")}/>
+        <MetricCard label="Distinct Roles" value={new Set(employees.map((item) => item.role)).size} icon={<BadgeOutlinedIcon />} hint="Role coverage in the org" color="#dcfce7" onClick={() => setFilter("roles")}/>
+        <MetricCard label="Active Emails" value={employees.length} icon={<MailOutlineOutlinedIcon />} hint="Reachable employee accounts" color="#ffedd5" onClick={() => setFilter("emails")}/>
       </Box>
 
       <ContentPanel
@@ -149,12 +165,12 @@ export default function EmployeesPage() {
       >
         <Box sx={{ height: 560, width: "100%" }}>
           <DataGrid
-            rows={employees}
+            rows={filteredEmployees}
             columns={columns}
             loading={loading}
             pageSize={pageSize}
             onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            rowsPerPageOptions={[5, 10]}
+            rowsPerPageOptions={[10, 20]}
             pagination
             sx={{
               border: "none",
