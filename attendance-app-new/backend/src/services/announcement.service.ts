@@ -43,3 +43,21 @@ export const createAnnouncementService = async(data:CreateAnnouncementData,userI
 
     return{ message:"Announcement Created Successfully",id:result.insertId};
 }
+
+export const updateAnnouncementService = async(data:CreateAnnouncementData,userId:number,announcementId:number) =>{
+    
+    const { title, description, audience, publish_date, is_active, } = data;
+
+    const [result] = await db.execute<ResultSetHeader>(
+        `UPDATE announcements SET title = ?, description = ?, audience = ?, publish_date = ?,is_active = ?,
+        updated_by = ? WHERE id = ? AND deleted_at IS NULL`,[title,description,audience,publish_date,is_active,userId,announcementId]
+    );
+
+    if(result.affectedRows === 0)
+    {
+        return null;
+    }
+
+    return {message:"Announcement Updated Successfully"};
+    
+}

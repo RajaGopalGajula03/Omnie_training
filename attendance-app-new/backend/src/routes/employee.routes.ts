@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createEmployee, deleteEmployee, getEmployees, getSingleEmployee, updateEmployee } from "../controllers/employee.controller";
+import { createEmployee, deleteEmployee, getEmployees, getSingleEmployee, restoreEmployee, updateEmployee } from "../controllers/employee.controller";
 import { verifyAuth } from "../middleware/auth.middleware";
 import { allowRoles } from "../middleware/role.middleware";
 import { allowOwnerShip } from "../middleware/ownership.middleware";
@@ -16,6 +16,8 @@ router.get("/:id",verifyAuth,allowOwnerShip(["HR","Manager"]),getSingleEmployee)
 router.put("/:id",verifyAuth,allowRoles(["HR","Manager"]),updateEmployee)
 
 router.delete("/:id",verifyAuth,allowRoles(["HR","Manager"]),deleteEmployee);
+
+router.patch("/:id/restore",verifyAuth,allowRoles(["HR","Manager"]),restoreEmployee);
 
 export default router;
 

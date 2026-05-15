@@ -44,6 +44,7 @@ export type Employee = {
     email: string;
     role: string;
     projects: string[];
+    deleted_at: string | null;
 };
 
 type EmployeeState = {

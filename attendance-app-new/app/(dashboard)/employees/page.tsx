@@ -6,6 +6,7 @@ import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import RestoreOutlinedIcon  from "@mui/icons-material/RestoreOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import BadgeOutlinedIcon from "@mui/icons-material/BadgeOutlined";
 import MailOutlineOutlinedIcon from "@mui/icons-material/MailOutlineOutlined";
@@ -23,20 +24,20 @@ export default function EmployeesPage() {
   const { employees, loading, error } = useSelector((state: RootState) => state.employee);
   const [filter, setFilter] = useState<"all" | "roles" | "emails">("all");
 
-// const rolesCount = new Set(employees.map((e) => e.role)).size;
+  // const rolesCount = new Set(employees.map((e) => e.role)).size;
 
-const filteredEmployees = (() => {
-  if (filter === "roles") {
-    // no real row-level role filtering possible for “distinct roles”
+  const filteredEmployees = (() => {
+    if (filter === "roles") {
+      // no real row-level role filtering possible for “distinct roles”
+      return employees;
+    }
+
+    if (filter === "emails") {
+      return employees;
+    }
+
     return employees;
-  }
-
-  if (filter === "emails") {
-    return employees;
-  }
-
-  return employees;
-})();
+  })();
 
   useEffect(() => {
     dispatch(fetchEmployees());
@@ -62,12 +63,28 @@ const filteredEmployees = (() => {
     }
   };
 
+  const handleRestore = async (id: number) => {
+
+    const confirmRestore = confirm("Are you sure you want to restore employee? ");
+
+    if (!confirmRestore) return;
+
+    const res = await fetch(`http://localhost:5000/api/employees/${id}/restore`, {
+      method: "PATCH",
+      credentials: "include",
+    })
+
+    if (res.ok) {
+      await dispatch(fetchEmployees());
+    }
+  }
+
   const columns: GridColDef<Employee>[] = [
     { field: "id", headerName: "ID", width: 80 },
     {
       field: "name",
       headerName: "Name",
-      width: 220,
+      width: 200,
       renderCell: (params) => (
         <Stack justifyContent="center" sx={{ height: "100%" }}>
           <Typography sx={{ color: "#0f172a", fontWeight: 700 }}>{params.row.name}</Typography>
@@ -78,7 +95,7 @@ const filteredEmployees = (() => {
     {
       field: "email",
       headerName: "Email",
-      width: 260,
+      width: 200,
     },
     {
       field: "role",
@@ -95,37 +112,54 @@ const filteredEmployees = (() => {
     {
       field: "actions",
       headerName: "Actions",
-      width: 300,
+      width: 400,
       sortable: false,
-      renderCell: (params) => (
-        <Stack direction="row" spacing={1} alignItems="center" sx={{ height: "100%" }}>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<VisibilityOutlinedIcon />}
-            onClick={() => router.push(`/employees/${params.row.id}`)}
-          >
-            View
-          </Button>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<EditOutlinedIcon />}
-            onClick={() => router.push(`/employees/edit/${params.row.id}`)}
-          >
-            Edit
-          </Button>
-          <Button
-            size="small"
-            color="error"
-            variant="outlined"
-            startIcon={<DeleteOutlineOutlinedIcon />}
-            onClick={() => handleDelete(params.row.id)}
-          >
-            Delete
-          </Button>
-        </Stack>
-      ),
+      renderCell: (params) => {
+
+        const isDeleted = !!params.row.deleted_at;
+
+        return (
+          <Stack direction="row" spacing={1} alignItems="center" sx={{ height: "100%" }}>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<VisibilityOutlinedIcon />}
+              disabled={isDeleted}
+              onClick={() => router.push(`/employees/${params.row.id}`)}
+            >
+              View
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<EditOutlinedIcon />}
+              disabled={isDeleted}
+              onClick={() => router.push(`/employees/edit/${params.row.id}`)}
+            >
+              Edit
+            </Button>
+            <Button
+              size="small"
+              color="error"
+              variant="outlined"
+              startIcon={<DeleteOutlineOutlinedIcon />}
+              disabled={isDeleted}
+              onClick={() => handleDelete(params.row.id)}
+            >
+              Delete
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<RestoreOutlinedIcon />}
+              disabled={!isDeleted}
+              onClick={() => handleRestore(params.row.id)}
+            >
+              Recover
+            </Button>
+          </Stack>
+        )
+      },
     },
   ];
 
@@ -154,9 +188,9 @@ const filteredEmployees = (() => {
           mb: 7,
         }}
       >
-        <MetricCard label="Total Employees" value={employees.length} icon={<GroupsOutlinedIcon />} hint="Current workforce count" color="#dbeafe"  onClick={() => setFilter("all")}/>
-        <MetricCard label="Distinct Roles" value={new Set(employees.map((item) => item.role)).size} icon={<BadgeOutlinedIcon />} hint="Role coverage in the org" color="#dcfce7" onClick={() => setFilter("roles")}/>
-        <MetricCard label="Active Emails" value={employees.length} icon={<MailOutlineOutlinedIcon />} hint="Reachable employee accounts" color="#ffedd5" onClick={() => setFilter("emails")}/>
+        <MetricCard label="Total Employees" value={employees.length} icon={<GroupsOutlinedIcon />} hint="Current workforce count" color="#dbeafe" onClick={() => setFilter("all")} />
+        <MetricCard label="Distinct Roles" value={new Set(employees.map((item) => item.role)).size} icon={<BadgeOutlinedIcon />} hint="Role coverage in the org" color="#dcfce7" onClick={() => setFilter("roles")} />
+        <MetricCard label="Active Emails" value={employees.length} icon={<MailOutlineOutlinedIcon />} hint="Reachable employee accounts" color="#ffedd5" onClick={() => setFilter("emails")} />
       </Box>
 
       <ContentPanel
@@ -170,7 +204,7 @@ const filteredEmployees = (() => {
             loading={loading}
             pageSize={pageSize}
             onPageSizeChange={(newPageSize) => setPageSize(newPageSize)}
-            rowsPerPageOptions={[10, 20]}
+            rowsPerPageOptions={[5, 10]}
             pagination
             sx={{
               border: "none",

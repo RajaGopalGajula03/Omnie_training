@@ -96,10 +96,10 @@ export default function EmployeeDetailsPage() {
                 fontWeight: 800,
               }}
             >
-              {employee.name.charAt(0)}
+              {employee.name ? employee.name.charAt(0) : "?"}
             </Avatar>
             <Box>
-              <Typography sx={{ fontSize: 28, fontWeight: 800 }}>{employee.name}</Typography>
+              <Typography sx={{ fontSize: 28, fontWeight: 800 }}>{employee.name || "Deleted User"}</Typography>
               <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: "wrap" }}>
                 <Chip icon={<MailOutlineOutlinedIcon />} label={employee.email} sx={lightChipSx} />
                 <Chip icon={<BadgeOutlinedIcon />} label={employee.role} sx={lightChipSx} />
@@ -111,7 +111,7 @@ export default function EmployeeDetailsPage() {
           <Box sx={{ mt: 2.5 }}>
             <Typography sx={{ color: "rgba(255,255,255,0.78)", mb: 1.1 }}>Projects</Typography>
             <Stack direction="row" spacing={1} flexWrap="wrap">
-              {employee.projects.map((project) => (
+              {(employee.projects ?? []).map((project) => (
                 <Chip key={project} label={project} sx={lightChipSx} />
               ))}
             </Stack>
