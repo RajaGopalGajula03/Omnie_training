@@ -38,5 +38,5 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
 
   const row = rows[0];
 
-  return NextResponse.json({id:row.id,employeeId:row.employee_id,month:body.payroll_month,status:row.status,amount:row.amount});
+  return NextResponse.json({id:row.id,employeeId:row.employee_id,month:row.payroll_month,status:row.status,amount:row.amount});
 }

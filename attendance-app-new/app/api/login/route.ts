@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         }
 
         const [rows] = await db.execute<RowDataPacket[]>(
-            "SELECT * FROM employees where email = ?", [email]
+            "SELECT * FROM employees where email = ? AND deleted_at IS NULL", [email]
         );
 
         // const user = employees.find(e=>e.email === email && e.password === password);

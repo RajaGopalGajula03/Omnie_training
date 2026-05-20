@@ -1,6 +1,6 @@
 "use client";
 
-import {Alert,Box, Button,Chip,CircularProgress,MenuItem, Stack,TextField,Typography,} from "@mui/material";
+import { Alert, Box, Button, Chip, CircularProgress, MenuItem, Stack, TextField, Typography, } from "@mui/material";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import MarkEmailUnreadOutlinedIcon from "@mui/icons-material/MarkEmailUnreadOutlined";
 import Diversity3OutlinedIcon from "@mui/icons-material/Diversity3Outlined";
@@ -23,7 +23,7 @@ type Announcement = {
   description: string;
   audience: "all" | "admin" | "employee";
   publish_date: string;
-  is_active:boolean;
+  is_active: boolean;
 };
 
 type AnnouncementForm = {
@@ -31,7 +31,7 @@ type AnnouncementForm = {
   description: string;
   audience: Announcement["audience"];
   publish_date: string;
-  is_active:boolean;
+  is_active: boolean;
 };
 
 const defaultForm: AnnouncementForm = {
@@ -39,8 +39,11 @@ const defaultForm: AnnouncementForm = {
   description: "",
   audience: "all",
   publish_date: new Date().toISOString().slice(0, 10),
-  is_active:true,
+  is_active: true,
 };
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 
 export default function AnnouncementsPage() {
   const router = useRouter();
@@ -53,38 +56,63 @@ export default function AnnouncementsPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editForm, setEditForm] = useState<AnnouncementForm>(defaultForm);
 
+
   const isAdmin = user?.role === "Manager" || user?.role === "HR";
 
   const loadAnnouncements = async () => {
-    const res = await fetch("/api/announcements", { credentials: "include" });
+    setMessage(null);
+    const res = await fetch(`${API_URL}/api/announcements`, { credentials: "include" });
+
+    if (!res.ok) {
+      setMessage({ type: "error", text: "Failed to load announcements", });
+
+      return;
+    }
+
     const data = await res.json();
+
     setAnnouncements(Array.isArray(data) ? data : []);
+
   };
 
   useEffect(() => {
     let active = true;
 
     const loadData = async () => {
-      const [authRes, announcementRes] = await Promise.all([
-        fetch("/api/auth/check", { credentials: "include" }),
-        fetch("/api/announcements", { credentials: "include" }),
-      ]);
+      try {
+        const [authRes, announcementRes] = await Promise.all([
+          fetch(`${API_URL}/api/auth/check`, { credentials: "include" }),
+          fetch(`${API_URL}/api/announcements`, { credentials: "include" }),
+        ]);
 
-      if (!authRes.ok) {
-        router.push("/login");
-        return;
+        if (!authRes.ok) {
+          router.push("/login");
+          return;
+        }
+
+        const authData = await authRes.json();
+
+        const announcementData = await announcementRes.json().catch(() => []);;
+
+        if (!active) {
+          return;
+        }
+
+        setUser(authData.user);
+        setAnnouncements(Array.isArray(announcementData) ? announcementData : []);
+        setLoading(false);
       }
+      catch (error) {
+        console.error(error);
+        if (active) {
+          setMessage({
+            type: "error",
+            text: "Failed to load announcements",
+          });
 
-      const authData = await authRes.json();
-      const announcementData = await announcementRes.json();
-
-      if (!active) {
-        return;
+          setLoading(false);
+        }
       }
-
-      setUser(authData.user);
-      setAnnouncements(Array.isArray(announcementData) ? announcementData : []);
-      setLoading(false);
     };
 
     void loadData();
@@ -118,7 +146,14 @@ export default function AnnouncementsPage() {
   };
 
   const saveAnnouncement = async (id: number, payload: AnnouncementForm) => {
-    const res = await fetch(`/api/announcements/${id}`, {
+
+    setMessage(null);
+    if (!payload.title.trim() || !payload.description.trim()) {
+      setMessage({ type: "error", text: "Title and description are required", });
+      return;
+    }
+
+    const res = await fetch(`${API_URL}/api/announcements/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -140,7 +175,15 @@ export default function AnnouncementsPage() {
   };
 
   const createAnnouncement = async () => {
-    const res = await fetch("/api/announcements", {
+    
+    setMessage(null);
+
+    if (!createForm.title.trim() || !createForm.description.trim()) {
+      setMessage({ type: "error", text: "Title and description are required", });
+      return;
+    }
+
+    const res = await fetch(`${API_URL}/api/announcements`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -291,8 +334,8 @@ export default function AnnouncementsPage() {
             activeFilter === "company"
               ? "Showing company-wide updates."
               : activeFilter === "targeted"
-              ? "Showing targeted updates."
-              : "Showing all announcements."
+                ? "Showing targeted updates."
+                : "Showing all announcements."
           }
           sx={!isAdmin ? undefined : { gridColumn: { xl: "2 / 3" } }}
         >

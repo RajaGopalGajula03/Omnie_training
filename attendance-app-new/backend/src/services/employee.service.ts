@@ -73,8 +73,10 @@ export const createEmployeeService = async (data: CreateEmployeeData, userId: nu
 
 export const getSingleEmployeeService = async (employeeId: number) => {
 
+    console.log(employeeId);
+    
     const [rows] = await db.execute<RowDataPacket[]>(
-        `SELECT * FROM employees WHERE id = ? AND deleted_at IS NULL`, [employeeId]
+        `SELECT id,employee_code,name,email,role,department_id FROM employees WHERE id = ? AND deleted_at IS NULL`, [employeeId]
     )
 
     return rows[0];

@@ -1,10 +1,28 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/auth.middleware";
-import {getAttendanceService,checkInService,checkOutService,adminUpdateAttendanceService,} from "../services/attendance.service";
+import { getAttendanceService, checkInService, checkOutService, adminUpdateAttendanceService, } from "../services/attendance.service";
 
-const ADMIN_ROLES = ["Manager", "HR"];
 
-export const getAttendance = async (req: AuthRequest,res: Response) => {
+
+export const getMyAttendance = async (req: AuthRequest, res: Response) => {
+  try {
+    const month = req.query.month as string;
+
+    if (!month) {
+      return res.status(400).json({ message: "Month is required" });
+    }
+
+    const result = await getAttendanceService(req.user!.id, month);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+
+export const getAttendance = async (req: AuthRequest, res: Response) => {
 
   try {
     const userIdParam = req.query.userId as string;
@@ -24,7 +42,7 @@ export const getAttendance = async (req: AuthRequest,res: Response) => {
       });
     }
 
-    const isAdmin = ADMIN_ROLES.includes(req.user!.role);
+    const isAdmin = req.user!.role === "Manager" || req.user!.role === "HR";
 
     if (!isAdmin && req.user!.id !== userId) {
       return res.status(403).json({
@@ -38,57 +56,54 @@ export const getAttendance = async (req: AuthRequest,res: Response) => {
   } catch (error) {
     console.log(error);
 
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    return res.status(500).json({ message: "Internal Server Error", });
   }
 };
 
-export const attendanceAction = async (req: AuthRequest,res: Response) => {
+export const checkIn = async (req: AuthRequest, res: Response) => {
 
   try {
-    const body = req.body;
 
-    if (body.action === "check-in") {
-      const result = await checkInService(req.user!.id);
+    const result = await checkInService(req.user!.id);
 
-      return res.status(result.success ? 200 : 400).json({
-        message: result.message,
-      });
-    }
+    return res.status(result.success ? 200 : 400).json({ message: result.message, });
 
-    if (body.action === "check-out") {
-      const result = await checkOutService(req.user!.id);
-
-      return res.status(result.success ? 200 : 400).json({
-        message: result.message,
-      });
-    }
-
-    if (body.action === "admin-update") {
-      const isAdmin = ADMIN_ROLES.includes(req.user!.role);
-
-      if (!isAdmin) {
-        return res.status(403).json({
-          message: "Only admin can edit attendance",
-        });
-      }
-
-      const result = await adminUpdateAttendanceService(body,req.user!.id);
-
-      return res.status(result.success ? 200 : 400).json({
-        message: result.message,
-      });
-    }
-
-    return res.status(400).json({
-      message: "Invalid action",
-    });
   } catch (error) {
-    console.log(error);
 
-    return res.status(500).json({
-      message: "Internal Server Error",
-    });
+    console.error(error);
+
+    return res.status(500).json({ message: "Internal Server Error", });
+  }
+};
+
+export const checkOut = async (req: AuthRequest, res: Response) => {
+
+  try {
+
+    const result = await checkOutService(req.user!.id);
+
+    return res.status(result.success ? 200 : 400).json({ message: result.message, });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({ message: "Internal Server Error", });
+  }
+};
+
+export const adminUpdateAttendance = async (req: AuthRequest, res: Response) => {
+
+  try {
+
+    const result = await adminUpdateAttendanceService(req.body, req.user!.id);
+
+    return res.status(result.success ? 200 : 400).json({ message: result.message, });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({ message: "Internal Server Error", });
   }
 };

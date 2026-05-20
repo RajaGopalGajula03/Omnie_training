@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     const [rows] = await db.execute<RowDataPacket[]>(`
         SELECT id,employee_id as employeeId, leave_type as leaveType,from_date as fromDate,
         to_date as toDate,total_days as days,reason,status,admin_remark as adminRemark from leave_requests WHERE employee_id = ? 
-        AND delete_at IS NULL ORDER BY created_at DESC`, [Number(employeeId)])
+        AND deleted_at IS NULL ORDER BY created_at DESC`, [Number(employeeId)])
 
     return Response.json(rows);
 }

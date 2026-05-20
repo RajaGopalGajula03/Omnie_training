@@ -3,74 +3,62 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import { createLeaveRequestService, getLeaveRequestService, updateLeaveRequestService } from "../services/leave.service";
 
 
-const ADMIN_ROLES = ["Manager","HR"];
+export const getLeaveRequests = async (req: AuthRequest, res: Response) => {
 
-export const getLeaveRequests = async(req:AuthRequest,res:Response) =>{
-
-    try{
+    try {
         const employeeIdParam = req.query.employeeId as string;
-        
-        const isAdmin = ADMIN_ROLES.includes(req.user!.role);
 
-        if(employeeIdParam && !isAdmin && Number(employeeIdParam) !== req.user!.id)
-        {
-            return res.status(403).json({message:"You can only view your own leave request"});
+        if (employeeIdParam && Number.isNaN(Number(employeeIdParam))) {
+            return res.status(400).json({
+                message: "Invalid Employee Id",
+            });
         }
 
-        const result = await getLeaveRequestService(req.user!,employeeIdParam?Number(employeeIdParam) : undefined);
+        const isAdmin = req.user!.role === "Manager" || req.user!.role === "HR";
+
+        const employeeId = isAdmin ? employeeIdParam ? Number(employeeIdParam) : undefined : req.user!.id;
+
+        const result = await getLeaveRequestService(employeeId);
 
         return res.status(200).json(result);
     }
-    catch(error)
-    {
+    catch (error) {
         console.error(error);
 
-        return res.status(500).json({message:"Internal Server Error"});
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
-export const createLeaveRequest = async(req:AuthRequest,res:Response) =>{
-    try{
-        const result = await createLeaveRequestService(req.user!,req.body);
+export const createLeaveRequest = async (req: AuthRequest, res: Response) => {
+    try {
+        const result = await createLeaveRequestService(req.user!, req.body);
 
-        return res.status(201).json({message:"Leave Request Created Successfully",id:result.insertId});
+        return res.status(201).json({ message: "Leave Request Created Successfully", id: result.insertId });
 
     }
-    catch(error)
-    {
+    catch (error) {
         console.error(error);
-        return res.status(500).json("Internal Server Error");
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
-export const updateLeaveRequest = async(req:AuthRequest,res:Response) =>{
-    try{
+export const updateLeaveRequest = async (req: AuthRequest, res: Response) => {
+    try {
         const leaveId = Number(req.params.id);
-        
-        if(Number.isNaN(leaveId))
-        {
-            return res.status(400).json({message:"Invalid Leave Id"});
+
+        if (Number.isNaN(leaveId)) {
+            return res.status(400).json({ message: "Invalid Leave Id" });
         }
 
-        const isAdmin = ADMIN_ROLES.includes(req.user!.role);
+        const result = await updateLeaveRequestService(leaveId, req.body, req.user!.id);
 
-        if(!isAdmin)
-        {
-            return res.status(403).json({
-                message:"Only Admin's can update leave Status"
-            })
-        }
-
-        const result = await updateLeaveRequestService(leaveId,req.body,req.user!.id);
-
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json({message:result.message,data:result.data});
 
     }
-    catch(error)
-    {
+    catch (error) {
         console.error(error);
         return res.status(500).json({
-            message:"Internal Server Error"
+            message: "Internal Server Error"
         });
     }
 }

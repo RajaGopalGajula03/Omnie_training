@@ -9,6 +9,6 @@ router.get("/",verifyAuth,getAnnouncements);
 
 router.post("/",verifyAuth,allowRoles(["HR","Manager"]),createAnnouncement);
 
-router.put("/",verifyAuth,allowRoles(["HR","Manager"]),updateAnnouncement)
+router.put("/:id",verifyAuth,allowRoles(["HR","Manager"]),updateAnnouncement)
 
 export default router;
