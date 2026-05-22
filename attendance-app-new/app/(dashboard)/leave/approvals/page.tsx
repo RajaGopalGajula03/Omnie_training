@@ -9,6 +9,8 @@ import { useRouter } from "next/navigation";
 import { getEmployeeById, type LeaveRequest } from "@/lib/dashboard-data";
 import { ContentPanel, MetricCard, PageIntro } from "../../_components/dashboard-ui";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function LeaveApprovalsPage() {
   const router = useRouter();
   const [leaves, setLeaves] = useState<LeaveRequest[]>([]);
@@ -17,9 +19,9 @@ export default function LeaveApprovalsPage() {
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("pending");
 
   const loadLeaves = async () => {
-    const res = await fetch("/api/leave", { credentials: "include" });
+    const res = await fetch(`${API_URL}/api/leaves`, { credentials: "include" });
     if (!res.ok) {
-      router.push("/login");
+      router.push(`/login`);
       return;
     }
 
@@ -32,9 +34,9 @@ export default function LeaveApprovalsPage() {
     let active = true;
 
     const run = async () => {
-      const res = await fetch("/api/leave", { credentials: "include" });
+      const res = await fetch(`${API_URL}/api/leaves`, { credentials: "include" });
       if (!res.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
@@ -56,7 +58,7 @@ export default function LeaveApprovalsPage() {
   const rejected = useMemo(() => leaves.filter((item) => item.status === "rejected"), [leaves]);
 
   const updateStatus = async (id: number, status: "approved" | "rejected") => {
-    const res = await fetch(`/api/leave/${id}`, {
+    const res = await fetch(`${API_URL}/api/leaves/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       credentials: "include",

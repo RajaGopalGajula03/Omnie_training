@@ -17,6 +17,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployees, type Employee } from "../../../store/employeeSlice";
 import { ContentPanel, MetricCard, PageIntro } from "../_components/dashboard-ui";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function EmployeesPage() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -53,7 +55,7 @@ export default function EmployeesPage() {
     const confirmDelete = confirm("Are you sure you want to delete this employee?");
     if (!confirmDelete) return;
 
-    const res = await fetch(`/api/employees/${id}`, {
+    const res = await fetch(`${API_URL}/api/employees/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -69,7 +71,7 @@ export default function EmployeesPage() {
 
     if (!confirmRestore) return;
 
-    const res = await fetch(`http://localhost:5000/api/employees/${id}/restore`, {
+    const res = await fetch(`${API_URL}/api/employees/${id}/restore`, {
       method: "PATCH",
       credentials: "include",
     })

@@ -8,6 +8,8 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { ContentPanel, PageIntro } from "../../_components/dashboard-ui";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function ApplyLeavePage() {
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState("");
@@ -29,7 +31,7 @@ export default function ApplyLeavePage() {
     onSubmit: async (values, { resetForm }) => {
       setSubmitError("");
 
-      const res = await fetch("/api/leave", {
+      const res = await fetch(`${API_URL}/api/leaves`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

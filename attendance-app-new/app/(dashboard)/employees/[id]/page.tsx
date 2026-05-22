@@ -19,6 +19,8 @@ type Attendance = {
   status: string;
 };
 
+// const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function EmployeeDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function EmployeeDetailsPage() {
 
   useEffect(() => {
     if (error === "unauthorized") {
-      router.push("/login");
+      router.push(`/login`);
     }
   }, [error, router]);
 

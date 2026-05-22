@@ -59,6 +59,8 @@ type AdminDetailKey =
 
 type EmployeeDetailKey = "pending" | "approved" | "attendance" | "announcements";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -74,10 +76,10 @@ export default function DashboardPage() {
     let active = true;
 
     const loadDashboard = async () => {
-      const authRes = await fetch("/api/auth/check", { credentials: "include" });
+      const authRes = await fetch(`${API_URL}/api/auth/check`, { credentials: "include" });
 
       if (!authRes.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
@@ -89,10 +91,10 @@ export default function DashboardPage() {
       setUser(authData.user);
 
       const [employeeRes, leaveRes, announcementRes, payrollRes] = await Promise.all([
-        fetch("/api/employees", { credentials: "include" }),
-        fetch("/api/leave", { credentials: "include" }),
-        fetch("/api/announcements", { credentials: "include" }),
-        fetch("/api/payroll", { credentials: "include" }),
+        fetch(`${API_URL}/api/employees`, { credentials: "include" }),
+        fetch(`${API_URL}/api/leaves`, { credentials: "include" }),
+        fetch(`${API_URL}/api/announcements`, { credentials: "include" }),
+        fetch(`${API_URL}/api/payroll`, { credentials: "include" }),
       ]);
 
       const employeeData = await employeeRes.json();

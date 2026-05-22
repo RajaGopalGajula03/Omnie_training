@@ -20,6 +20,8 @@ app.use(cors({
     credentials: true,
 }));
 
+console.log("front end url",process.env.CLIENT_URL);
+
 app.use("/api/employees", employeeRoutes);
 
 app.use("/api/login", loginRoutes);

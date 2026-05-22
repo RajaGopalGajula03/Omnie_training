@@ -1,10 +1,12 @@
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export const fetchEmployees = createAsyncThunk(
     "employee/fetchEmployees",
     async (_, { rejectWithValue }) => {
-        const res = await fetch("/api/employees");
+        const res = await fetch(`${API_URL}/api/employees`,{ credentials: "include" });
 
         if (res.status === 401) {
 
@@ -20,11 +22,11 @@ export const fetchEmployees = createAsyncThunk(
 export const fetchEmployeeDetails = createAsyncThunk(
     "employee/fetchEmployeeDetails",
     async (id: string) => {
-        const empRes = await fetch(`/api/employees/${id}`);
+        const empRes = await fetch(`${API_URL}/api/employees/${id}`,{ credentials: "include" });
         const empData = await empRes.json();
 
         const month = new Date().toISOString().slice(0, 7);
-        const attRes = await fetch(`/api/attendance?userId=${id}&month=${month}`);
+        const attRes = await fetch(`${API_URL}/api/attendance?userId=${id}&month=${month}`,{ credentials: "include" });
         const attData = await attRes.json();
 
         return { empData, attData };

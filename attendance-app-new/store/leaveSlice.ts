@@ -1,5 +1,7 @@
 import { createSlice,createAsyncThunk } from "@reduxjs/toolkit";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export type Leave={
     id:number;
     employeeId:number;
@@ -26,7 +28,7 @@ const initialState : LeaveState = {
 export const fetchLeaves = createAsyncThunk(
     "leave/fetch",
     async(employeeId?:number)=>{
-        const url = employeeId ? `/api/leave?employeeId=${employeeId}`:`/api/leave`;
+        const url = employeeId ? `${API_URL}/api/leaves?employeeId=${employeeId}`:`${API_URL}/api/leaves`;
 
         const res = await fetch(url, { credentials: "include" });
         return res.json();
@@ -36,7 +38,7 @@ export const fetchLeaves = createAsyncThunk(
 export const createLeave = createAsyncThunk(
     "leave/create",
     async(data:{employeeId?: number; leaveType: string; fromDate: string; toDate: string; reason: string})=>{
-        const res = await fetch(`/api/leave`,{
+        const res = await fetch(`${API_URL}/api/leaves`,{
             method:"POST",
             headers:{"Content-Type":"application/json"},
             credentials:"include",
@@ -50,7 +52,7 @@ export const createLeave = createAsyncThunk(
 export const updateLeaveStatus = createAsyncThunk(
     "leave/update",
     async({id,status}:{id:number,status:string})=>{
-        const res = await fetch(`/api/leave/${id}`,{
+        const res = await fetch(`${API_URL}/api/leaves/${id}`,{
             method:"PUT",
             headers:{"Content-Type":"application/json"},
             credentials:"include",

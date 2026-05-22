@@ -24,6 +24,8 @@ type SessionUser = {
   role: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function AttendanceCalendarPage() {
   const router = useRouter();
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -35,29 +37,32 @@ export default function AttendanceCalendarPage() {
 
   useEffect(() => {
     const loadSessionAndEmployees = async () => {
-      const authRes = await fetch("/api/auth/check", { credentials: "include" });
+      const authRes = await fetch(`${API_URL}/api/auth/check`, { credentials: "include" });
 
       if (!authRes.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
       const authData = await authRes.json();
       setUser(authData.user);
 
-      const employeeRes = await fetch("/api/employees", { credentials: "include" });
-      const employeeData = await employeeRes.json();
+      if (authData.user.role === "Manager" || authData.user.role === "HR") {
+        const employeeRes = await fetch(`${API_URL}/api/employees`, { credentials: "include" });
 
-      if (Array.isArray(employeeData)) {
-        setEmployees(employeeData);
-        if (authData.user.role === "Manager" || authData.user.role === "HR") {
+        const employeeData = await employeeRes.json();
+
+        if (Array.isArray(employeeData)) {
+          setEmployees(employeeData);
           if (employeeData.length > 0) {
             setSelectedId(employeeData[0].id);
           }
-        } else {
-          setSelectedId(authData.user.id);
         }
+        return;
       }
+
+      setEmployees([authData.user]);
+      setSelectedId(authData.user.id);
     };
 
     loadSessionAndEmployees();
@@ -68,16 +73,21 @@ export default function AttendanceCalendarPage() {
 
     const fetchAttendance = async () => {
       const month = new Date().toISOString().slice(0, 7);
-      const res = await fetch(`/api/attendance?userId=${selectedId}&month=${month}`, {
-        credentials: "include",
-      });
+
+      const isAdmin = user?.role === "Manager" || user?.role === "HR";
+
+      const url = isAdmin
+        ? `${API_URL}/api/attendance?userId=${selectedId}&month=${month}`
+        : `${API_URL}/api/attendance/me?month=${month}`;
+
+      const res = await fetch(url, {credentials: "include",});
 
       const data = await res.json();
       setAttendance(data);
     };
 
     fetchAttendance();
-  }, [selectedId]);
+  }, [selectedId,user]);
 
   const attendanceMap: Record<string, Attendance> = {};
   attendance.forEach((item) => {
@@ -100,13 +110,13 @@ export default function AttendanceCalendarPage() {
 
   return (
     <Box>
-      <Box sx={{display:'flex',justifyContent:'space-between'}}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <PageIntro
-        eyebrow="Attendance Calendar"
-        title="Monthly attendance calendar"
-        description="Review daily presence, absences, and working-hour snapshots in a clear month view."
-      />
-      <Button variant="contained" sx={{height:50}} onClick={()=>router.push("/attendance")}>Back to Attendance</Button>
+          eyebrow="Attendance Calendar"
+          title="Monthly attendance calendar"
+          description="Review daily presence, absences, and working-hour snapshots in a clear month view."
+        />
+        <Button variant="contained" sx={{ height: 50 }} onClick={() => router.push("/attendance")}>Back to Attendance</Button>
       </Box>
 
       <ContentPanel
@@ -172,12 +182,12 @@ export default function AttendanceCalendarPage() {
                     data?.status === "present"
                       ? "#dcfce7"
                       : data?.status === "leave"
-                      ? "#fef3c7"
-                      : data?.status === "absent"
-                      ? "#fee2e2"
-                      : data?.status === "holiday"
-                      ? "#e0f2fe"
-                      : "#f1f5f9",
+                        ? "#fef3c7"
+                        : data?.status === "absent"
+                          ? "#fee2e2"
+                          : data?.status === "holiday"
+                            ? "#e0f2fe"
+                            : "#f1f5f9",
                 }}
               >
                 <Typography sx={{ color: "#334155", fontSize: 12, fontWeight: 700 }}>{day}</Typography>
@@ -190,12 +200,12 @@ export default function AttendanceCalendarPage() {
                       data?.status === "present"
                         ? "#15803d"
                         : data?.status === "leave"
-                        ? "#b45309"
-                        : data?.status === "absent"
-                        ? "#dc2626"
-                        : data?.status === "holiday"
-                        ? "#0369a1"
-                        : "#64748b",
+                          ? "#b45309"
+                          : data?.status === "absent"
+                            ? "#dc2626"
+                            : data?.status === "holiday"
+                              ? "#0369a1"
+                              : "#64748b",
                     textTransform: "capitalize",
                   }}
                 >

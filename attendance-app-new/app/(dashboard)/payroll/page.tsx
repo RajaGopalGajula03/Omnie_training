@@ -44,6 +44,8 @@ const defaultPayrollForm: PayrollForm = {
   amount: "",
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function PayrollPage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -59,7 +61,7 @@ export default function PayrollPage() {
   const isAdmin = user?.role === "Manager" || user?.role === "HR";
 
   const loadPayroll = async () => {
-    const res = await fetch("/api/payroll", { credentials: "include" });
+    const res = await fetch(`${API_URL}/api/payroll`, { credentials: "include" });
     const data = await res.json();
     setPayrollItems(Array.isArray(data) ? data : []);
   };
@@ -69,13 +71,13 @@ export default function PayrollPage() {
 
     const loadData = async () => {
       const [authRes, payrollRes, employeeRes] = await Promise.all([
-        fetch("/api/auth/check", { credentials: "include" }),
-        fetch("/api/payroll", { credentials: "include" }),
-        fetch("/api/employees", { credentials: "include" }),
+        fetch(`${API_URL}/api/auth/check`, { credentials: "include" }),
+        fetch(`${API_URL}/api/payroll`, { credentials: "include" }),
+        fetch(`${API_URL}/api/employees`, { credentials: "include" }),
       ]);
 
       if (!authRes.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
@@ -135,7 +137,7 @@ export default function PayrollPage() {
   };
 
   const savePayroll = async (id: number, payload: PayrollForm) => {
-    const res = await fetch(`/api/payroll/${id}`, {
+    const res = await fetch(`${API_URL}/api/payroll/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -162,7 +164,7 @@ export default function PayrollPage() {
   };
 
   const createPayroll = async () => {
-    const res = await fetch("/api/payroll", {
+    const res = await fetch(`${API_URL}/api/payroll`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

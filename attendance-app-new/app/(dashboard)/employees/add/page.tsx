@@ -27,6 +27,8 @@ const roleDepartmentMap: Record<string, number> = {
   "HR": 2,
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function AddEmployee() {
   const router = useRouter();
   const [submitError, setSubmitError] = useState("");
@@ -49,7 +51,7 @@ export default function AddEmployee() {
     onSubmit: async (values, { resetForm }) => {
       setSubmitError("");
 
-      const res = await fetch("/api/employees", {
+      const res = await fetch(`${API_URL}/api/employees`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

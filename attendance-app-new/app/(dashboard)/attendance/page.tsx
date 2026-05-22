@@ -1,6 +1,6 @@
 "use client";
 
-import {Alert,Box,Button,CircularProgress,MenuItem,Stack,TextField,Typography,} from "@mui/material";
+import { Alert, Box, Button, CircularProgress, MenuItem, Stack, TextField, Typography, } from "@mui/material";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
@@ -32,6 +32,8 @@ type AttendanceRecord = {
   status: "present" | "absent" | "holiday" | "leave";
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function AttendancePage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -47,26 +49,38 @@ export default function AttendancePage() {
   const currentMonth = new Date().toISOString().slice(0, 7);
   const todayKey = new Date().toISOString().slice(0, 10);
 
-  const loadAttendance = useCallback(async (employeeId: number) => {
-    const res = await fetch(`/api/attendance?userId=${employeeId}&month=${currentMonth}`, {
+  const loadAttendance = useCallback(async (employeeId: number, sessionUser: SessionUser | null = user) => {
+    const shouldUseSelfRoute =
+      sessionUser &&
+      sessionUser.id === employeeId &&
+      sessionUser.role !== "Manager" &&
+      sessionUser.role !== "HR";
+
+    const url = shouldUseSelfRoute
+      ? `${API_URL}/api/attendance/me?month=${currentMonth}`
+      : `${API_URL}/api/attendance?userId=${employeeId}&month=${currentMonth}`;
+
+    const res = await fetch(url, {
       credentials: "include",
     });
+
     const data = await res.json();
     const records = Array.isArray(data) ? data : [];
+
     setAttendance(records);
     setEditRows(
       records.reduce<Record<string, AttendanceRecord>>((accumulator, item) => {
-        accumulator[item.date] = { ...item };
+        accumulator[item.date] = item;
         return accumulator;
       }, {})
     );
-  }, [currentMonth]);
+  }, [currentMonth, user]);
 
   useEffect(() => {
     let active = true;
 
     const loadData = async () => {
-      const authRes = await fetch("/api/auth/check", { credentials: "include" });
+      const authRes = await fetch(`${API_URL}/api/auth/check`, { credentials: "include" });
 
       if (!authRes.ok) {
         router.push("/login");
@@ -82,7 +96,7 @@ export default function AttendancePage() {
       setUser(authData.user);
 
       if (authData.user.role === "Manager" || authData.user.role === "HR") {
-        const employeeRes = await fetch("/api/employees", { credentials: "include" });
+        const employeeRes = await fetch(`${API_URL}/api/employees`, { credentials: "include" });
         const employeeData = await employeeRes.json();
 
         if (!active) {
@@ -96,12 +110,12 @@ export default function AttendancePage() {
         setSelectedId(firstId);
 
         if (firstId) {
-          await loadAttendance(firstId);
+          await loadAttendance(firstId, authData.user);
         }
       } else {
         setSelectedId(authData.user.id);
         setEmployees([authData.user]);
-        await loadAttendance(authData.user.id);
+        await loadAttendance(authData.user.id, authData.user);
       }
 
       if (active) {
@@ -144,13 +158,14 @@ export default function AttendancePage() {
   const handleCheckAction = async (action: "check-in" | "check-out") => {
     setSavingId(action);
 
-    const res = await fetch("/api/attendance", {
+    const endpoint =
+      action === "check-in"
+        ? `${API_URL}/api/attendance/check-in`
+        : `${API_URL}/api/attendance/check-out`;
+
+    const res = await fetch(endpoint, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       credentials: "include",
-      body: JSON.stringify({ action }),
     });
 
     const data = await res.json().catch(() => null);
@@ -171,7 +186,7 @@ export default function AttendancePage() {
       text: action === "check-in" ? "Checked in successfully." : "Checked out successfully.",
     });
   };
-
+  //
   const handleAdminSave = async (date: string) => {
     const record = editRows[date];
 
@@ -181,14 +196,13 @@ export default function AttendancePage() {
 
     setSavingId(date);
 
-    const res = await fetch("/api/attendance", {
-      method: "POST",
+    const res = await fetch(`${API_URL}/api/attendance/admin-update`, {
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
       body: JSON.stringify({
-        action: "admin-update",
         userId: selectedId,
         date: record.date,
         checkIn: record.checkIn,
@@ -196,7 +210,6 @@ export default function AttendancePage() {
         status: record.status,
       }),
     });
-
     const data = await res.json().catch(() => null);
 
     if (!res.ok) {
@@ -508,10 +521,10 @@ export default function AttendancePage() {
                           item.status === "present"
                             ? "#15803d"
                             : item.status === "leave"
-                            ? "#b45309"
-                            : item.status === "absent"
-                            ? "#dc2626"
-                            : "#64748b",
+                              ? "#b45309"
+                              : item.status === "absent"
+                                ? "#dc2626"
+                                : "#64748b",
                         fontWeight: 800,
                         textTransform: "capitalize",
                       }}

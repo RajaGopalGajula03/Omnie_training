@@ -25,6 +25,8 @@ type Employee = {
   role: string;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function EditEmployee() {
   const router = useRouter();
   const params = useParams();
@@ -36,7 +38,7 @@ export default function EditEmployee() {
   const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
-    fetch("/api/employees", { credentials: "include" })
+    fetch(`${API_URL}/api/employees`, { credentials: "include" })
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
@@ -52,7 +54,7 @@ export default function EditEmployee() {
 
     const loadEmployee = async () => {
       setLoading(true);
-      const res = await fetch(`/api/employees/${id}`, { credentials: "include" });
+      const res = await fetch(`${API_URL}/api/employees/${id}`, { credentials: "include" });
       const data = await res.json();
       setEmployee(data);
       setLoading(false);
@@ -76,7 +78,7 @@ export default function EditEmployee() {
     onSubmit: async (values) => {
       setSubmitError("");
 
-      const res = await fetch(`/api/employees/${id}`, {
+      const res = await fetch(`${API_URL}/api/employees/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

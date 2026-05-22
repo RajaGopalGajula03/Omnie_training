@@ -36,6 +36,8 @@ type NavItem = {
   children?: Array<{ label: string; href: string; icon: React.ReactNode }>;
 };
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -45,12 +47,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const loadSession = async () => {
-      const res = await fetch("/api/auth/check", {
+      const res = await fetch(`${API_URL}/api/auth/check`, {
         credentials: "include",
       });
 
       if (!res.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
@@ -98,7 +100,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const navItems = isAdmin ? adminNav : employeeNav;
 
   const handleLogout = async () => {
-    await fetch("/api/logout", {
+    await fetch(`${API_URL}/api/auth/logout`, {
       method: "POST",
       credentials: "include",
     });

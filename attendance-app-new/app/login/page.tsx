@@ -10,6 +10,8 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function Login() {
     const [showLogin, setShowLogin] = useState(false);
     const [loginError, setLoginError] = useState("");
@@ -47,7 +49,7 @@ export default function Login() {
             setIsSubmitting(true);
 
             try {
-                const res = await fetch("/api/login", {
+                const res = await fetch(`${API_URL}/api/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",

@@ -86,7 +86,7 @@ export default function AnnouncementsPage() {
         ]);
 
         if (!authRes.ok) {
-          router.push("/login");
+          router.push(`/login`);
           return;
         }
 

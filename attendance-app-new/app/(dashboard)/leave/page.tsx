@@ -66,6 +66,8 @@ function getStatusColor(status: LeaveRequest["status"]) {
   return "default" as const;
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL!;
+
 export default function LeavePage() {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -87,7 +89,7 @@ export default function LeavePage() {
   const isAdmin = user?.role === "Manager" || user?.role === "HR";
 
   const loadLeaves = async () => {
-    const leaveRes = await fetch("/api/leave", { credentials: "include" });
+    const leaveRes = await fetch(`${API_URL}/api/leaves`, { credentials: "include" });
     const leaveData = await leaveRes.json();
     setLeaves(Array.isArray(leaveData) ? leaveData : []);
   };
@@ -96,10 +98,10 @@ export default function LeavePage() {
     let active = true;
 
     const loadData = async () => {
-      const authRes = await fetch("/api/auth/check", { credentials: "include" });
+      const authRes = await fetch(`${API_URL}/api/auth/check`, { credentials: "include" });
 
       if (!authRes.ok) {
-        router.push("/login");
+        router.push(`/login`);
         return;
       }
 
@@ -111,10 +113,10 @@ export default function LeavePage() {
 
       setUser(authData.user);
 
-      const requests: Promise<Response>[] = [fetch("/api/leave", { credentials: "include" })];
+      const requests: Promise<Response>[] = [fetch(`${API_URL}/api/leaves`, { credentials: "include" })];
 
       if (authData.user.role === "Manager" || authData.user.role === "HR") {
-        requests.push(fetch("/api/employees", { credentials: "include" }));
+        requests.push(fetch(`${API_URL}/api/employees`, { credentials: "include" }));
       }
 
       const [leaveRes, employeeRes] = await Promise.all(requests);
@@ -222,7 +224,7 @@ export default function LeavePage() {
   };
 
   const updateLeave = async (id: number, payload: Partial<LeaveEditForm>) => {
-    const res = await fetch(`/api/leave/${id}`, {
+    const res = await fetch(`${API_URL}/api/leaves/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
